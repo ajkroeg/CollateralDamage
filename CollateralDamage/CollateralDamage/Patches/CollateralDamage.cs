@@ -34,8 +34,12 @@ namespace CollateralDamage.Patches
 
                     ModState.HasObjective = true;
 
-                    if (__instance.Combat.MapMetaData.biomeSkin == Biome.BIOMESKIN.urbanHighTech)
+                    if (__instance.Combat.MapMetaData.biomeSkin == Biome.BIOMESKIN.urbanHighTech || ModInit.modSettings.WhitelistedContractIDs.Contains(contract.Override.ID))
+                    {
+                        ModInit.modLog.LogMessage(
+                            $"Map is urban or contract is whitelisted, bonus objective will pay.");
                         ModState.HasBonusObjective = true;
+                    }
 
                     var HUD = Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
                     var objectivesList = HUD.ObjectivesList;
