@@ -6,6 +6,14 @@ This mod incentivizes players to minimize collateral damage to non-objective, no
 
 New "bonus" objectives can be generated, prompting the player to avoid destroying non-target buidings during contracts. If successful, the player will recieve a bonus; if failed, the player will recieve a penalty for each building destroyed. Bonus objectives are guaranteed for any contracts listed in `WhitelistedContractIDs`, and can optionally be randomly generated according to `CollateralDamageObjectiveChance` (will only be generated on urban maps).
 
+### Collateral Damage
+
+So, what constitutes collateral damage you say? Great question! Collateral damage means destruction of any non-objective, non-enemy buildings.
+- Destroy base mission? Those buildings don't count (obviously).
+- Playing with Concrete Jungle installed and enemy infantry occupy a highrise? Blast away.
+- What about clearing pesky buildings on the way to your objective so you have direct LOS? Yeah... that counts. That's called warcrimes.
+- What about stray shots? Those count as well. Gramps always said only shoot at what you can hit, and he was right. Course he also said a bunch of other shit that was completely wrong but you can't win them all.
+
 Settings available:
 ```
 "Settings": {
@@ -40,4 +48,4 @@ Settings available:
 
 `FlatRateBonus` - int. Flat rate of cbill bonus for completing the "Avoid Collateral Damage" bonus objective. Stacks with ContractPayFactorBonus.
 
-
+`WhitelistedContractIDs` - List<string>. List of contract IDs that will <i>always</i> have the "avoid collateral damage" objective. Primarily used for capture base.
