@@ -6,6 +6,8 @@ This mod incentivizes players to minimize collateral damage to non-objective, no
 
 New "bonus" objectives can be generated, prompting the player to avoid destroying non-target buidings during contracts. If successful, the player will recieve a bonus; if failed, the player will recieve a penalty for each building destroyed. Bonus objectives are guaranteed for any contracts listed in `WhitelistedContractIDs`, and can optionally be randomly generated according to `CollateralDamageObjectiveChance` (will only be generated on urban maps).
 
+**IMPORTANT** these bonus objectives will show up in the objectives list during a mission, but they are not "real" objectives in the sense that they will not show immediately as "failed" if you destroy a building. Adding new objective logic to handle that would be a ton of work for a teeny payoff.
+
 ### Collateral Damage
 
 So, what constitutes collateral damage you say? Great question! Collateral damage means destruction of any non-objective, non-enemy buildings.
@@ -48,4 +50,4 @@ Settings available:
 
 `FlatRateBonus` - int. Flat rate of cbill bonus for completing the "Avoid Collateral Damage" bonus objective. Stacks with ContractPayFactorBonus.
 
-`WhitelistedContractIDs` - List<string>. List of contract IDs that will <i>always</i> have the "avoid collateral damage" objective. Primarily used for capture base.
+`WhitelistedContractIDs` - List<string>. List of contract IDs that will <i>always</i> have the "avoid collateral damage" objective. Primarily used for capture base. This means regardless of `EmployerPlanetsOnly`.
