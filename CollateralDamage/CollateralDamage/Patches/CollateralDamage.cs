@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using BattleTech;
@@ -10,6 +11,7 @@ using CollateralDamage.Framework;
 using Harmony;
 using Localize;
 using UnityEngine;
+using Int32 = System.Int32;
 
 namespace CollateralDamage.Patches
 {
@@ -25,32 +27,30 @@ namespace CollateralDamage.Patches
                 var contract = __instance.Combat.ActiveContract;
 
                 var roll = ModInit.Random.NextDouble();
-                if (roll <= ModInit.modSettings.CollateralDamageObjectiveChance && (ModInit.modSettings.EmployerPlanetsOnly &&
-                    contract.Override.employerTeam.FactionValue.Name ==
-                    sim.CurSystem.OwnerValue.Name || !ModInit.modSettings.EmployerPlanetsOnly) || ModInit.modSettings.WhitelistedContractIDs.Contains(contract.Override.ID))
+                if (ModInit.modSettings.WhitelistedContractIDs.Contains(contract.Override.ID) || (roll <= ModInit.modSettings.CollateralDamageObjectiveChance && __instance.Combat.MapMetaData.biomeSkin == Biome.BIOMESKIN.urbanHighTech &&
+                    (ModInit.modSettings.EmployerPlanetsOnly &&
+                        contract.Override.employerTeam.FactionValue.Name ==
+                        sim.CurSystem.OwnerValue.Name || !ModInit.modSettings.EmployerPlanetsOnly)))
                 {
                     ModInit.modLog.LogMessage(
                         $"Contract whitelisted or roll {roll} <= threshold {ModInit.modSettings.CollateralDamageObjectiveChance}, creating secondary objective to avoid collateral damage.");
 
                     ModState.HasObjective = true;
-
-                    if (__instance.Combat.MapMetaData.biomeSkin == Biome.BIOMESKIN.urbanHighTech || ModInit.modSettings.WhitelistedContractIDs.Contains(contract.Override.ID))
-                    {
-                        ModInit.modLog.LogMessage(
-                            $"Map is urban or contract is whitelisted, bonus objective will pay.");
-                        ModState.HasBonusObjective = true;
-                    }
+                    ModState.HasBonusObjective = true;
 
                     var HUD = Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
                     var objectivesList = HUD.ObjectivesList;
-                    var objectiveItem = UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
+                    var objectiveItem =
+                        UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
                     objectiveItem.transform.SetParent(objectivesList.objectivesStack.transform);
                     objectiveItem.transform.localScale = Vector3.one;
-                    var objectiveUIList = Traverse.Create(objectivesList).Field("objectiveUIItems").GetValue<List<CombatHUDObjectiveItem>>();
+                    var objectiveUIList = Traverse.Create(objectivesList).Field("objectiveUIItems")
+                        .GetValue<List<CombatHUDObjectiveItem>>();
                     objectiveUIList.Add(objectiveItem);
 
                     objectiveItem.Init(new Text("Avoid Collateral Damage"), false, false);
-                    objectiveItem.SetStatusColors(objectivesList.objectiveSucceeded.color, objectivesList.objectiveFailed.color);
+                    objectiveItem.SetStatusColors(objectivesList.objectiveSucceeded.color,
+                        objectivesList.objectiveFailed.color);
                     objectiveItem.gameObject.SetActive(true);
 
                     //ADD objective to UI somehow?
@@ -89,9 +89,9 @@ namespace CollateralDamage.Patches
 
                 if (ModInit.modSettings.PublicNuisanceDamageOffset > 0f)
                 {
-                    if (__instance.team.GUID == "be77cadd-e245-4240-a93e-b99cc98902a5" || // Target
-                        __instance.team.GUID == "31151ed6-cfc2-467e-98c4-9ae5bea784cf" || // TargetsAlly
-                        __instance.team.GUID == "3c9f3a20-ab03-4bcb-8ab6-b1ef0442bbf0") // HostileToAll
+                    if (attackingUnit.team.GUID == "be77cadd-e245-4240-a93e-b99cc98902a5" || // Target
+                        attackingUnit.team.GUID == "31151ed6-cfc2-467e-98c4-9ae5bea784cf" || // TargetsAlly
+                        attackingUnit.team.GUID == "3c9f3a20-ab03-4bcb-8ab6-b1ef0442bbf0") // HostileToAll
                     {
                         var size = -1;
 
@@ -181,25 +181,26 @@ namespace CollateralDamage.Patches
                     .Method("AddObjective", new Type[] {typeof(MissionObjectiveResult)});
 
 
-                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 0 && (ModInit.modSettings.WhitelistedContractIDs.Contains(___theContract.Override.ID) || ModState.HasBonusObjective))
+                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 0 &&
+                    (ModInit.modSettings.WhitelistedContractIDs.Contains(___theContract.Override.ID) ||
+                     ModState.HasBonusObjective))
                 {
                     var bonus = 0;
                     bonus += Mathf.RoundToInt(___theContract.InitialContractValue *
                                               ModInit.modSettings.ContractPayFactorBonus);
                     bonus += ModInit.modSettings.FlatRateBonus;
                     ModInit.modLog.LogMessage($"{bonus} in collateral damage bonuses!");
-                    var bldDestructResult = new MissionObjectiveResult($"Avoid Collateral Damage: ¢{bonus} bonus.", Guid.NewGuid().ToString(),
+                    var bldDestructResult = new MissionObjectiveResult($"Avoid Collateral Damage: ¢{bonus} bonus.",
+                        Guid.NewGuid().ToString(),
                         false, true, ObjectiveStatus.Succeeded, false);
                     addObjectiveMethod.GetValue(bldDestructResult);
-
-                    var moneyResultsBonus = ___theContract.MoneyResults + bonus;
-                    Traverse.Create(___theContract).Property("MoneyResults").SetValue(moneyResultsBonus);
                     ModState.Reset();
                     return;
                 }
 
                 var finalDamageCost = 0;
-                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 1 || ModState.BuildingsDestroyed.FirstOrDefault().Key == 1)
+                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 1 ||
+                    ModState.BuildingsDestroyed.FirstOrDefault().Key == 1)
                 {
                     var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
                     var totalCost = destructCostInfo.Value.BuildingCost * destructCostInfo.Value.Count;
@@ -218,35 +219,96 @@ namespace CollateralDamage.Patches
                         var totalCost = bldgDestroyed.Value.BuildingCost * bldgDestroyed.Value.Count;
                         var bldDestructCost =
                             $"Collateral Damage Fees:  {bldgDestroyed.Value.Count} Size {bldgDestroyed.Key} Buildings x {bldgDestroyed.Value.BuildingCost} ea. = ¢-{totalCost}";
-                        var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}", Guid.NewGuid().ToString(),
+                        var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
+                            Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Failed, false);
                         addObjectiveMethod.GetValue(bldDestructResult);
                         finalDamageCost += totalCost;
-                        ModInit.modLog.LogMessage($"{totalCost} in collateral damage fees for size {bldgDestroyed.Key}. Current Total Fees: {finalDamageCost}");
                     }
-                    
                 }
 
-                var finalDamageMitigation = 0;
-                if (ModState.HasObjective && ModInit.modSettings.PublicNuisanceDamageOffset > 0f && ModState.BuildingsDestroyedByOpFor.Count > 0)
+                if (ModState.HasObjective && ModInit.modSettings.PublicNuisanceDamageOffset > 0f &&
+                    ModState.BuildingsDestroyedByOpFor.Count > 0)
                 {
                     foreach (var bldgDestroyedOp in ModState.BuildingsDestroyedByOpFor)
                     {
-                        var totalOffset = Mathf.RoundToInt(bldgDestroyedOp.Value.BuildingCost * bldgDestroyedOp.Value.Count * ModInit.modSettings.PublicNuisanceDamageOffset);
+                        var totalOffset = Mathf.RoundToInt(bldgDestroyedOp.Value.BuildingCost *
+                                                           bldgDestroyedOp.Value.Count *
+                                                           ModInit.modSettings.PublicNuisanceDamageOffset);
                         var bldDestructOpCost =
                             $"Maximum Damage Mitigation:  {bldgDestroyedOp.Value.Count} Size {bldgDestroyedOp.Key} Buildings x {bldgDestroyedOp.Value.BuildingCost} ea. = ¢{totalOffset}";
-                        var bldDestructOpResult = new MissionObjectiveResult($"{bldDestructOpCost}", Guid.NewGuid().ToString(),
+                        var bldDestructOpResult = new MissionObjectiveResult($"{bldDestructOpCost}",
+                            Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Succeeded, false);
                         addObjectiveMethod.GetValue(bldDestructOpResult);
+                    }
+                }
+                ModState.Reset();
+            }
+        }
+
+        [HarmonyPatch(typeof(Contract), "CompleteContract", new Type[] { typeof(MissionResult), typeof(bool) })]
+        public static class Contract_CompleteContract_Patch
+        {
+            public static void Postfix(Contract __instance, MissionResult result, bool isGoodFaithEffort)
+            {
+                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 0 &&
+                    (ModInit.modSettings.WhitelistedContractIDs.Contains(__instance.Override.ID) ||
+                     ModState.HasBonusObjective))
+                {
+                    var bonus = 0;
+                    bonus += Mathf.RoundToInt(__instance.InitialContractValue *
+                                              ModInit.modSettings.ContractPayFactorBonus);
+                    bonus += ModInit.modSettings.FlatRateBonus;
+                    ModInit.modLog.LogMessage($"{bonus} in collateral damage bonuses!");
+                    ModState.FinalPayResult = bonus;
+                    ModState.Reset();
+                    return;
+                }
+
+                var finalDamageCost = 0;
+                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 1 ||
+                    ModState.BuildingsDestroyed.FirstOrDefault().Key == 1)
+                {
+                    var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
+                    var totalCost = destructCostInfo.Value.BuildingCost * destructCostInfo.Value.Count;
+                    finalDamageCost = totalCost;
+                }
+
+                else if (ModState.HasObjective && ModState.BuildingsDestroyed.Count > 1)
+                {
+                    foreach (var bldgDestroyed in ModState.BuildingsDestroyed)
+                    {
+                        var totalCost = bldgDestroyed.Value.BuildingCost * bldgDestroyed.Value.Count;
+                        finalDamageCost += totalCost;
+                        ModInit.modLog.LogMessage(
+                            $"{totalCost} in collateral damage fees for size {bldgDestroyed.Key}. Current Total Fees: {finalDamageCost}");
+                    }
+
+                }
+
+                var finalDamageMitigation = 0;
+                if (ModState.HasObjective && ModInit.modSettings.PublicNuisanceDamageOffset > 0f &&
+                    ModState.BuildingsDestroyedByOpFor.Count > 0)
+                {
+                    foreach (var bldgDestroyedOp in ModState.BuildingsDestroyedByOpFor)
+                    {
+                        var totalOffset = Mathf.RoundToInt(bldgDestroyedOp.Value.BuildingCost *
+                                                           bldgDestroyedOp.Value.Count *
+                                                           ModInit.modSettings.PublicNuisanceDamageOffset);
                         finalDamageMitigation += totalOffset;
-                        ModInit.modLog.LogMessage($"{totalOffset} in collateral damage mitigation for size {bldgDestroyedOp.Key}. Current Total Offset: {finalDamageMitigation}");
+                        ModInit.modLog.LogMessage(
+                            $"{totalOffset} in collateral damage mitigation for size {bldgDestroyedOp.Key}. Current Total Offset: {finalDamageMitigation}");
                     }
                 }
 
-                var endingCosts = Math.Min(0, finalDamageCost - finalDamageMitigation);
-                var moneyResults = ___theContract.MoneyResults - endingCosts;
-                Traverse.Create(___theContract).Property("MoneyResults").SetValue(moneyResults);
-                ModState.Reset();
+                var endingCosts = Math.Max(0, finalDamageCost - finalDamageMitigation);
+                ModInit.modLog.LogMessage($"Final costs will be {endingCosts}");
+                ModInit.modLog.LogMessage($"MoneyResults before penalties: {__instance.MoneyResults}");
+                ModState.FinalPayResult = endingCosts;
+                var moneyResults = __instance.MoneyResults - ModState.FinalPayResult;
+                ModInit.modLog.LogMessage($"MoneyResults after penalties: {moneyResults}");
+                Traverse.Create(__instance).Property("MoneyResults").SetValue(moneyResults);
             }
         }
     }

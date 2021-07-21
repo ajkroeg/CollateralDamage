@@ -13,6 +13,7 @@ namespace CollateralDamage
         public static Dictionary<int, Util.BuildingDestructionInfo> BuildingsDestroyedByOpFor = new Dictionary<int, Util.BuildingDestructionInfo>();
         public static bool HasObjective = false;
         public static bool HasBonusObjective = false;
+        public static int FinalPayResult;
 
         public static void Reset()
         {
@@ -20,6 +21,7 @@ namespace CollateralDamage
             BuildingsDestroyedByOpFor = new Dictionary<int, Util.BuildingDestructionInfo>();
             HasObjective = false;
             HasBonusObjective = false;
+            FinalPayResult = 0;
         }
     }
 }
