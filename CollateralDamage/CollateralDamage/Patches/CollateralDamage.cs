@@ -17,6 +17,8 @@ namespace CollateralDamage.Patches
 {
     class CollateralDamage
     {
+
+        // create new objective type and inject it?
         [HarmonyPatch(typeof(TurnDirector), "StartFirstRound")]
         public static class TurnDirector_StartFirstRound
         {
@@ -40,18 +42,37 @@ namespace CollateralDamage.Patches
 
                     var HUD = Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
                     var objectivesList = HUD.ObjectivesList;
-                    var objectiveItem =
+                    //var objectivesNotify = Traverse.Create(HUD).Property("ObjectiveStatusNotify").GetValue<CombatHUDObjectiveStatusNotify>();
+                    //var objectives = Traverse.Create(objectivesList).Field("objectives").GetValue<List<ObjectiveGameLogic>>();
+
+                    //GameObject newObjectiveLogicGo = Util.NewGameObject(objectivesList.gameObject);
+
+                    //Util.AvoidCollateralObjective newObjectiveLogic = newObjectiveLogicGo.AddComponent<Util.AvoidCollateralObjective>();
+                    //newObjectiveLogic.title = "Avoid Collateral Damage";
+                    //newObjectiveLogic.AlwaysInit(__instance.Combat);
+                    //newObjectiveLogic.ContractInitialize();
+                    //newObjectiveLogic.ActivateObjective();
+                    
+                    //objectives.Add(newObjectiveLogic);
+                    ModInit.modLog.LogMessage(
+                        $"Collateral Damage Objective Added to objectives");
+                    var objectiveUIItem =
                         UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
-                    objectiveItem.transform.SetParent(objectivesList.objectivesStack.transform);
-                    objectiveItem.transform.localScale = Vector3.one;
+                    objectiveUIItem.transform.SetParent(objectivesList.objectivesStack.transform);
+                    objectiveUIItem.transform.localScale = Vector3.one;
                     var objectiveUIList = Traverse.Create(objectivesList).Field("objectiveUIItems")
                         .GetValue<List<CombatHUDObjectiveItem>>();
-                    objectiveUIList.Add(objectiveItem);
+                    objectiveUIList.Add(objectiveUIItem);
 
-                    objectiveItem.Init(new Text("Avoid Collateral Damage"), false, false);
-                    objectiveItem.SetStatusColors(objectivesList.objectiveSucceeded.color,
+                   objectiveUIItem.Init(new Text("Avoid Collateral Damage"), false, false);
+                   //objectiveUIItem.Init(__instance.Combat, HUD, objectivesList, objectivesNotify, newObjectiveLogic);
+                   ModInit.modLog.LogMessage(
+                       $"Collateral Damage objectiveUIItem initialized");
+                    objectiveUIItem.SetStatusColors(objectivesList.objectiveSucceeded.color,
                         objectivesList.objectiveFailed.color);
-                    objectiveItem.gameObject.SetActive(true);
+                    objectiveUIItem.gameObject.SetActive(true);
+                    ModInit.modLog.LogMessage(
+                        $"Collateral Damage objectiveUIItem set active");
 
                     //ADD objective to UI somehow?
 
@@ -89,10 +110,14 @@ namespace CollateralDamage.Patches
 
                 if (ModInit.modSettings.PublicNuisanceDamageOffset > 0f)
                 {
-                    if (attackingUnit.team.GUID == "be77cadd-e245-4240-a93e-b99cc98902a5" || // Target
+
+                    if (attackingUnit == null || // null attacker should be CJ blowing things up with dummy GUID, proc as offset.
+                        attackingUnit.team.GUID == "be77cadd-e245-4240-a93e-b99cc98902a5" || // Target
                         attackingUnit.team.GUID == "31151ed6-cfc2-467e-98c4-9ae5bea784cf" || // TargetsAlly
                         attackingUnit.team.GUID == "3c9f3a20-ab03-4bcb-8ab6-b1ef0442bbf0") // HostileToAll
                     {
+                        jump:
+                        
                         var size = -1;
 
                         var flatRate = ModInit.modSettings.FlatRate;
@@ -123,9 +148,16 @@ namespace CollateralDamage.Patches
                         {
                             ModState.BuildingsDestroyedByOpFor[size].Count += 1;
                         }
+                        return;
                     }
                 }
 
+                if (attackingUnit == null)
+                {
+                    ModInit.modLog.LogMessage(
+                        $"Couldn't find attackingUnit. Probably ConcreteJungle dummy GUID.");
+                    return;
+                }
                 if (ModInit.modSettings.SupportOrAllyCosts &&
                     attackingUnit.team.GUID != "9ed02e70-beff-4131-952e-49d366e2f7cc" && // PlayerOneSupport
                     attackingUnit.team.GUID != "70af7e7f-39a8-4e81-87c2-bd01dcb01b5e" && // EmployersAlly
@@ -198,7 +230,7 @@ namespace CollateralDamage.Patches
                     return;
                 }
 
-                var finalDamageCost = 0;
+//                var finalDamageCost = 0;
                 if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 1 ||
                     ModState.BuildingsDestroyed.FirstOrDefault().Key == 1)
                 {
@@ -209,7 +241,7 @@ namespace CollateralDamage.Patches
                     var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}", Guid.NewGuid().ToString(),
                         false, true, ObjectiveStatus.Failed, false);
                     addObjectiveMethod.GetValue(bldDestructResult);
-                    finalDamageCost = totalCost;
+//                    finalDamageCost = totalCost;
                 }
 
                 else if (ModState.HasObjective && ModState.BuildingsDestroyed.Count > 1)
@@ -223,7 +255,7 @@ namespace CollateralDamage.Patches
                             Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Failed, false);
                         addObjectiveMethod.GetValue(bldDestructResult);
-                        finalDamageCost += totalCost;
+//                        finalDamageCost += totalCost;
                     }
                 }
 
