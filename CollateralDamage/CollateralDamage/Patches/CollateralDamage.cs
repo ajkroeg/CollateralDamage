@@ -116,8 +116,7 @@ namespace CollateralDamage.Patches
                         attackingUnit.team.GUID == "31151ed6-cfc2-467e-98c4-9ae5bea784cf" || // TargetsAlly
                         attackingUnit.team.GUID == "3c9f3a20-ab03-4bcb-8ab6-b1ef0442bbf0") // HostileToAll
                     {
-                        jump:
-                        
+
                         var size = -1;
 
                         var flatRate = ModInit.modSettings.FlatRate;
