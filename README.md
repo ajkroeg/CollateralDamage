@@ -50,4 +50,4 @@ Settings available:
 
 `FlatRateBonus` - int. Flat rate of cbill bonus for completing the "Avoid Collateral Damage" bonus objective. Stacks with ContractPayFactorBonus.
 
-`WhitelistedContractIDs` - List<string>. List of contract IDs that will <i>always</i> have the "avoid collateral damage" objective. Primarily used for capture base. This means regardless of `EmployerPlanetsOnly`.
+`WhitelistedContractIDs` - List<string>. List of contract IDs that will <i>always</i> have the "avoid collateral damage" objective. Primarily used for capture base. This also ignores `EmployerPlanetsOnly`.
