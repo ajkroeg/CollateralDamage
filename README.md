@@ -71,7 +71,7 @@ Settings available:
 
 `CDThresholdMin` and `CDThresholdMax` - ints. Minimum and maximum bounds for random collateral damage threshold of randomly generated bonus objective. If you destroy non-objective buildings > the chosen threshold, you will begin to amass fees for each building destroyed above the threshold. If you destroy no buildings, the end-of-contract bonus will be `(ContractPayFactorBonus + FlatRateBonus) x threshold`. However, if <i>any</i> buildings are destroyed, but still below the threshold, you recieve no bonus, but no fees.
 
-`WhitelistedContracts` - List<CollateralDamageInfo>. Information for contracts that will <i>always</i> have the "avoid collateral damage" objective. This also ignores `EmployerPlanetsOnly`. 
+`WhitelistedContracts` - `List<CollateralDamageInfo>`. Information for contracts that will <i>always</i> have the "avoid collateral damage" objective. This also ignores `EmployerPlanetsOnly`. 
 	
 ### Details of new data type `CollateralDamageInfo`:
 	
