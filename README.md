@@ -30,8 +30,11 @@ Settings available:
 		"FlatRateBonus": 25000,
 		"CDThresholdMin": 1,
 		"CDThresholdMax": 5,
-		"DisableAutocompleteWhitelist": [
-			"DestroyBase_DeniableDestruction",
+		"DisableAutoUrbanOnly": true,
+		"AllowDisableAutocompleteWhitelist": [
+			"DestroyBase_DeniableDestruction"
+		],
+		"ForceDisableAutocompleteWhitelist": [
 			"DestroyBase_Smugglers"
 		],
 		"WhitelistedContracts": [
@@ -74,6 +77,8 @@ Settings available:
 `FlatRateBonus` - int. Flat rate of cbill bonus for completing the "Avoid Collateral Damage" bonus objective. Stacks with ContractPayFactorBonus.
 
 `CDThresholdMin` and `CDThresholdMax` - ints. Minimum and maximum bounds for random collateral damage threshold of randomly generated bonus objective. If you destroy non-objective buildings > the chosen threshold, you will begin to amass fees for each building destroyed above the threshold. If you destroy no buildings, the end-of-contract bonus will be `(ContractPayFactorBonus + FlatRateBonus) x threshold`. However, if <i>any</i> buildings are destroyed, but still below the threshold, you recieve no bonus, but no fees.
+
+`"DisableAutoUrbanOnly` - bool. if true, below settings disabling autocomplete only come into play on urban maps.
 
 `AllowDisableAutocompleteWhitelist` - `List<string>`. list of contract IDs for which the player will be given the option to forgo autocompleting when all objectives are met. primarily intended for contracts with DoWarCrimes to enable players to stick around and keep blowing shit up.
 
