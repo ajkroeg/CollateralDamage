@@ -62,6 +62,7 @@ namespace CollateralDamage
 
         public List<CollateralDamageInfo> WhitelistedContracts = new List<CollateralDamageInfo>(); // damages on these contracts
 
+        public bool DisableAutoUrbanOnly = true;
         public List<string> AllowDisableAutocompleteWhitelist = new List<string>();
         public List<string> ForceDisableAutocompleteWhitelist = new List<string>();
     }

@@ -336,7 +336,12 @@ namespace CollateralDamage.Patches
                 {
                     ModInit.modLog.LogMessage(
                         $"instance was null? wtf.");
+                    return true;
                 }
+
+                if (ModInit.modSettings.DisableAutoUrbanOnly &&
+                    __instance.Combat.MapMetaData.biomeSkin != Biome.BIOMESKIN.urbanHighTech) return true;
+
                 if (__instance.Combat.RegionsList.All(
                     x => x.regionDefId != "regionDef_EvacZone") || ModState.HasSeenEvacPopup || (!ModInit.modSettings.AllowDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID) && !ModInit.modSettings.ForceDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID)))
                 {
