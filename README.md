@@ -71,14 +71,16 @@ Settings available:
 
 `CDThresholdMin` and `CDThresholdMax` - ints. Minimum and maximum bounds for random collateral damage threshold of randomly generated bonus objective. If you destroy non-objective buildings > the chosen threshold, you will begin to amass fees for each building destroyed above the threshold. If you destroy no buildings, the end-of-contract bonus will be `(ContractPayFactorBonus + FlatRateBonus) x threshold`. However, if <i>any</i> buildings are destroyed, but still below the threshold, you recieve no bonus, but no fees.
 
-`WhitelistedContracts` - List<CollateralDamageInfo>. Information for contrats that will <i>always</i> have the "avoid collateral damage" objective. This also ignores `EmployerPlanetsOnly`. Details of CollateralDamageInfo below:
+`WhitelistedContracts` - List<CollateralDamageInfo>. Information for contracts that will <i>always</i> have the "avoid collateral damage" objective. This also ignores `EmployerPlanetsOnly`. 
 	
-	`ContractID` - string. contract ID of whitelisted contract
+### Details of new data type `CollateralDamageInfo`:
 	
-	`DoWarCrimes` - bool. if true, player well get <i>paid</i> for destroying non-objective buildings > DestructionThreshold. If no buildings are destroyed, player will pay fee equal to per-building bonus x DestructionThreshold. If false, player will have to pay fee for each building destroyed > DestructionThreshold.
+`ContractID` - string. contract ID of whitelisted contract
 	
-	`DestructionThreshold` - int. As described above, threshold of buildings destroyed after which bonuses/fees will be assessed.
-	
-	`CBillResultOverride` - float. if != 0, will override the per-building bonus/fee calculations with this value. if 0, fee/bonus will follow same formula as random objective: `(SizeFactor + FlatRate + ContractPayFactor) x # destroyed > threshold` for fees and `(FlatRate + ContractPayFactor) x # destroyed > threshold` for WarCrimes.	
+`DoWarCrimes` - bool. if true, player well get <i>paid</i> for destroying non-objective buildings > DestructionThreshold. If no buildings are destroyed, player will pay fee equal to per-building bonus x DestructionThreshold. If false, player will have to pay fee for each building destroyed > DestructionThreshold.
 
-	`EmployerRepResult` and `TargetRepResult` - floats. Per-building reputation change for both employer and target for each building destroyed > threshold. Sign of values is always respected <i>except</i> when no buildings are destroyed. In this case, if DoWarCrimes = false, both are forced positive and player gets reputation bonus of `RepResult x threshold` with employer and target. If DoWarCrimes = true and no buildings are destroyed, player gets reputation bonus with target and reputation penalty with employer.
+`DestructionThreshold` - int. As described above, threshold of buildings destroyed after which bonuses/fees will be assessed.
+	
+`CBillResultOverride` - float. if != 0, will override the per-building bonus/fee calculations with this value. if 0, fee/bonus will follow same formula as random objective: `(SizeFactor + FlatRate + ContractPayFactor) x # destroyed > threshold` for fees and `(FlatRate + ContractPayFactor) x # destroyed > threshold` for WarCrimes.	
+
+`EmployerRepResult` and `TargetRepResult` - floats. Per-building reputation change for both employer and target for each building destroyed > threshold. Sign of values is always respected <i>except</i> when no buildings are destroyed. In this case, if DoWarCrimes = false, both are forced positive and player gets reputation bonus of `RepResult x threshold` with employer and target. If DoWarCrimes = true and no buildings are destroyed, player gets reputation bonus with target and reputation penalty with employer.
