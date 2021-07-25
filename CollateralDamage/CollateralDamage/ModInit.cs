@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Harmony;
 using System.Reflection;
+using CollateralDamage.Framework;
 using Newtonsoft.Json;
 
 namespace CollateralDamage
@@ -30,6 +31,7 @@ namespace CollateralDamage
 
 
             ModInit.modLog.LogMessage($"Initializing {HarmonyPackage} - Version {typeof(Settings).Assembly.GetName().Version}");
+            Util.LogSettings();
             var harmony = HarmonyInstance.Create(HarmonyPackage);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
@@ -55,7 +57,12 @@ namespace CollateralDamage
 
         public int FlatRateBonus = 25000; // 0 disables FlatRateBonus, stacks with PayBonusFactor;
 
-        public List<string> WhitelistedContractIDs = new List<string>(); // damages on these contracts
+        public int CDThresholdMin = 1;
+        public int CDThresholdMax = 10;
 
+        public List<CollateralDamageInfo> WhitelistedContracts = new List<CollateralDamageInfo>(); // damages on these contracts
+
+        public List<string> DisableAutoCompleteBlackList_ContractType = new List<string>();
+        public List<string> DisableAutoCompleteBlackList_ContractID = new List<string>();
     }
 }
