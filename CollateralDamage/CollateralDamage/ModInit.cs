@@ -62,7 +62,7 @@ namespace CollateralDamage
 
         public List<CollateralDamageInfo> WhitelistedContracts = new List<CollateralDamageInfo>(); // damages on these contracts
 
-        public List<string> DisableAutoCompleteBlackList_ContractType = new List<string>();
-        public List<string> DisableAutoCompleteBlackList_ContractID = new List<string>();
+        public List<string> AllowDisableAutocompleteWhitelist = new List<string>();
+        public List<string> ForceDisableAutocompleteWhitelist = new List<string>();
     }
 }

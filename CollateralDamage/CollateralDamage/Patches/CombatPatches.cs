@@ -338,14 +338,14 @@ namespace CollateralDamage.Patches
                         $"instance was null? wtf.");
                 }
                 if (__instance.Combat.RegionsList.All(
-                    x => x.regionDefId != "regionDef_EvacZone") || ModInit.modSettings.DisableAutoCompleteBlackList_ContractType.Contains(__instance.Combat.ActiveContract.Override.ContractTypeValue.Name) || ModInit.modSettings.DisableAutoCompleteBlackList_ContractID.Contains(__instance.Combat.ActiveContract.Override.ID) || ModState.HasSeenEvacPopup)
+                    x => x.regionDefId != "regionDef_EvacZone") || ModState.HasSeenEvacPopup || (!ModInit.modSettings.AllowDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID) && !ModInit.modSettings.ForceDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID)))
                 {
                     return true;
                 }
                 __instance.checkAutoCompleteFlag = false;
                 if (TriggeringObjectiveStatus.CheckTriggeringObjectiveList(__instance, __instance.DisplayName, __instance.triggeringObjectiveList, __instance.Combat))
                 {
-                    if (ModState.CurrentWhiteListInfo.DoWarCrimes)
+                    if (ModInit.modSettings.AllowDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID))
                     {
                         var popup = GenericPopupBuilder
                             .Create("Call For Pickup",
@@ -367,6 +367,10 @@ namespace CollateralDamage.Patches
                         });
                         popup.Render();
                         ModState.HasSeenEvacPopup = true;
+                    }
+                    else if (ModInit.modSettings.ForceDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID))
+                    {
+                        return false;
                     }
                 }
                 return false;
