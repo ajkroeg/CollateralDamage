@@ -14,6 +14,7 @@ namespace CollateralDamage
         public static int FinalPayResult;
         public static bool ShouldAutocomplete = true;
         public static bool HasSeenEvacPopup = false;
+        public static bool StartFirstRoundOnce = false;
 
         public static void Reset()
         {
@@ -25,7 +26,8 @@ namespace CollateralDamage
             HasObjective = false;
             FinalPayResult = 0;
             ShouldAutocomplete = true;
-            HasSeenEvacPopup = true;
+            HasSeenEvacPopup = false;
+            StartFirstRoundOnce = false;
         }
     }
 }

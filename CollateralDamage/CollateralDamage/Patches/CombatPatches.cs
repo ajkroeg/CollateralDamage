@@ -23,6 +23,7 @@ namespace CollateralDamage.Patches
         {
             public static void Postfix(TurnDirector __instance)
             {
+                if (ModState.StartFirstRoundOnce) return;
                 var sim = UnityGameInstance.BattleTechGame.Simulation;
                 if (sim == null) return;
                 var contract = __instance.Combat.ActiveContract;
@@ -87,6 +88,7 @@ namespace CollateralDamage.Patches
                     objectiveUIItem.gameObject.SetActive(true);
                     ModInit.modLog.LogMessage(
                         $"Collateral Damage objectiveUIItem set active");
+                    ModState.StartFirstRoundOnce = true;
                     return;
                 }
                 else
@@ -142,11 +144,13 @@ namespace CollateralDamage.Patches
                     objectiveUIItem.gameObject.SetActive(true);
                     ModInit.modLog.LogMessage(
                         $"Collateral Damage objectiveUIItem set active");
+                    ModState.StartFirstRoundOnce = true;
                 }
                 else
                 {
                     ModInit.modLog.LogMessage(
                         $"Contract not whitelisted or roll {roll} > threshold {ModInit.modSettings.CollateralDamageObjectiveChance}. No secondary objective will be created, no collateral damage will be penalized.");
+                    ModState.StartFirstRoundOnce = true;
                 }
             }
         }
