@@ -222,15 +222,14 @@ namespace CollateralDamage.Patches
                         $"Couldn't find attackingUnit. Probably ConcreteJungle dummy GUID.");
                     return;
                 }
-                if (ModInit.modSettings.SupportOrAllyCosts &&
-                    attackingUnit.team.GUID != "9ed02e70-beff-4131-952e-49d366e2f7cc" && // PlayerOneSupport
-                    attackingUnit.team.GUID != "70af7e7f-39a8-4e81-87c2-bd01dcb01b5e" && // EmployersAlly
-                    !attackingUnit.team.IsLocalPlayer) return;
-                if (!ModInit.modSettings.SupportOrAllyCosts && attackingUnit.team.IsLocalPlayer) return;
 
-                if (__instance.team.GUID != "be77cadd-e245-4240-a93e-b99cc98902a5" && // Target
-                    __instance.team.GUID != "31151ed6-cfc2-467e-98c4-9ae5bea784cf" && // TargetsAlly
-                    __instance.team.GUID != "3c9f3a20-ab03-4bcb-8ab6-b1ef0442bbf0") // HostileToAll
+                if (!ModInit.modSettings.SupportOrAllyCosts &&
+                    attackingUnit.team.GUID == "9ed02e70-beff-4131-952e-49d366e2f7cc" || // PlayerOneSupport
+                    attackingUnit.team.GUID == "70af7e7f-39a8-4e81-87c2-bd01dcb01b5e") return;  // EmployersAlly
+                   // !attackingUnit.team.IsLocalPlayer) return;
+                //if (!ModInit.modSettings.SupportOrAllyCosts && !attackingUnit.team.IsLocalPlayer) return;
+
+                if (attackingUnit.team.IsLocalPlayer) // HostileToAll
                 {
                     var size = -1;
 
@@ -279,14 +278,15 @@ namespace CollateralDamage.Patches
                         objectiveUIList.FirstOrDefault(x => x.ObjectiveText.text.StartsWith("Avoid Collateral Damage!"));
                     if (objectiveAVOID != null)
                     {
-                        var objectiveUIItem =
-                            UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
-                        objectiveUIItem.transform.SetParent(objectivesList.objectivesStack.transform);
-                        objectiveUIItem.transform.localScale = Vector3.one;
-                        objectiveUIList.Add(objectiveUIItem);
+                        
                         if (!ModState.CurrentWhiteListInfo.DoWarCrimes && ModState.BuildingsDestroyedCount >
                             ModState.BuildingsDestroyedThreshold)
                         {
+                            var objectiveUIItem =
+                                UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
+                            objectiveUIItem.transform.SetParent(objectivesList.objectivesStack.transform);
+                            objectiveUIItem.transform.localScale = Vector3.one;
+                            objectiveUIList.Add(objectiveUIItem);
                             objectiveAVOID.gameObject.SetActive(false);
                             ModInit.modLog.LogMessage(
                                 $"Avoid Collateral Damage FAILED. Original Objective Set Inactive");

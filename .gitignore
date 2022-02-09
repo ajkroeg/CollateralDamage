@@ -6,6 +6,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.props
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -21,6 +22,7 @@
 bld/
 [Bb]in/
 [Oo]bj/
+PracticeMakesPerfect/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -68,6 +70,7 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+*.zip
 
 # Chutzpah Test files
 _Chutzpah*
@@ -240,7 +243,3 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-IRTweaks/IRTweaks/IRTweaks.csproj
-
-# Ignore the VS Directory.build.props file
-Directory.Build.props 
