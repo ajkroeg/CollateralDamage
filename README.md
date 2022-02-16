@@ -87,6 +87,8 @@ Settings available:
 
 `EmployerRepResult` and `TargetRepResult` - floats, Per-building reputation change for both employer and target for each building destroyed > threshold. Sign of values is always respected <i>except</i> when no buildings are destroyed. In this case, if DoWarCrimes = false, both are forced positive and player gets reputation bonus of `RepResult x threshold` with employer and target. If DoWarCrimes = true and no buildings are destroyed, player gets reputation bonus with target and reputation penalty with employer.
 
+`DoWarCrimesChance` - float, probability of contracts on urban maps to generate bonus object to <i>inflict</i> collateral damage. Can only be generated when contract target is system owner, and only on urban maps.
+
 `"DisableAutoUrbanOnly` - bool. if true, below settings disabling autocomplete only come into play on urban maps.
 
 `AllowDisableAutocompleteWhitelist` - `List<string>`. list of contract IDs for which the player will be given the option to forgo autocompleting when all objectives are met. primarily intended for contracts with DoWarCrimes to enable players to stick around and keep blowing shit up.
