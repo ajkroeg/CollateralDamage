@@ -103,7 +103,7 @@ Settings available:
 
 `DestructionThreshold` - int. As described above, threshold of buildings destroyed after which bonuses/fees will be assessed.
 
-`DestructionCap` - int. As descripbed above, should be set to some value > DestructionThreshold to define an upper limit for penalties/bonuses. 0 = no cap.
+`DestructionCap` - int. As described above, should be set to some value > DestructionThreshold to define an upper limit for penalties/bonuses. 0 = no cap.
 
 `CBillResultOverride` - float. if != 0, will override the per-building bonus/fee calculations with this value. if 0, fee/bonus will follow same formula as random objective: `(SizeFactor + FlatRate + ContractPayFactor) x # destroyed > threshold` for fees and `(FlatRate + ContractPayFactor) x # destroyed > threshold` for WarCrimes.	
 
