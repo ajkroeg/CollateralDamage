@@ -47,6 +47,7 @@ Settings available:
 				"ContractID": "DestroyBase_DeniableDestruction",
 				"DoWarCrimes": true,
 				"DestructionThreshold": 3,
+				"DestructionCap": 8,
 				"CBillResultOverride": 0,
 				"EmployerRepResult": -5,
 				"TargetRepResult": -1
@@ -55,6 +56,7 @@ Settings available:
 				"ContractID": "DestroyBase_Smugglers",
 				"DoWarCrimes": false,
 				"DestructionThreshold": 3,
+				"DestructionCap": 8,
 				"CBillResultOverride": 1000.0,
 				"EmployerRepResult": -5.0,
 				"TargetRepResult": -1.0
