@@ -29,7 +29,12 @@ Settings available:
 		"ContractPayFactorBonus": 0.2,
 		"FlatRateBonus": 25000,
 		"CDThresholdMin": 1,
-		"CDThresholdMax": 5,
+		"CDCapMin": 1,
+		"CDThresholdMax": 3,
+		"CDCapMax": 3,
+		"EmployerRepResult": -1.0,
+		"TargetRepResult": -1.0,
+		"DoWarCrimesChance": 1.0,
 		"DisableAutoUrbanOnly": true,
 		"AllowDisableAutocompleteWhitelist": [
 			"DestroyBase_DeniableDestruction"
@@ -78,6 +83,10 @@ Settings available:
 
 `CDThresholdMin` and `CDThresholdMax` - ints. Minimum and maximum bounds for random collateral damage threshold of randomly generated bonus objective. If you destroy non-objective buildings > the chosen threshold, you will begin to amass fees for each building destroyed above the threshold. If you destroy no buildings, the end-of-contract bonus will be `(ContractPayFactorBonus + FlatRateBonus) x threshold`. However, if <i>any</i> buildings are destroyed, but still below the threshold, you recieve no bonus, but no fees.
 
+`CDCapMin` and `CDCapMax` - int. Minimum and maximum bounds for upper limit of randomly generated collateral damage penalties/bonuses. Random value in this range will be added to the random "threshold" value from CDThresholdMin  and CDThresholdMax; this then represents the upper limit of penalties or bonuses; buildings destroyed beyond this limit will not generate additional penalties or bonuses. If these values are set to 0, there is assumed to be no upper limit.
+
+`EmployerRepResult` and `TargetRepResult` - floats, Per-building reputation change for both employer and target for each building destroyed > threshold. Sign of values is always respected <i>except</i> when no buildings are destroyed. In this case, if DoWarCrimes = false, both are forced positive and player gets reputation bonus of `RepResult x threshold` with employer and target. If DoWarCrimes = true and no buildings are destroyed, player gets reputation bonus with target and reputation penalty with employer.
+
 `"DisableAutoUrbanOnly` - bool. if true, below settings disabling autocomplete only come into play on urban maps.
 
 `AllowDisableAutocompleteWhitelist` - `List<string>`. list of contract IDs for which the player will be given the option to forgo autocompleting when all objectives are met. primarily intended for contracts with DoWarCrimes to enable players to stick around and keep blowing shit up.
@@ -93,7 +102,9 @@ Settings available:
 `DoWarCrimes` - bool. if true, player well get <i>paid</i> for destroying non-objective buildings > DestructionThreshold. If no buildings are destroyed, player will pay fee equal to per-building bonus x DestructionThreshold. If false, player will have to pay fee for each building destroyed > DestructionThreshold.
 
 `DestructionThreshold` - int. As described above, threshold of buildings destroyed after which bonuses/fees will be assessed.
-	
+
+`DestructionCap` - int. As descripbed above, should be set to some value > DestructionThreshold to define an upper limit for penalties/bonuses. 0 = no cap.
+
 `CBillResultOverride` - float. if != 0, will override the per-building bonus/fee calculations with this value. if 0, fee/bonus will follow same formula as random objective: `(SizeFactor + FlatRate + ContractPayFactor) x # destroyed > threshold` for fees and `(FlatRate + ContractPayFactor) x # destroyed > threshold` for WarCrimes.	
 
 `EmployerRepResult` and `TargetRepResult` - floats. Per-building reputation change for both employer and target for each building destroyed > threshold. Sign of values is always respected <i>except</i> when no buildings are destroyed. In this case, if DoWarCrimes = false, both are forced positive and player gets reputation bonus of `RepResult x threshold` with employer and target. If DoWarCrimes = true and no buildings are destroyed, player gets reputation bonus with target and reputation penalty with employer.
