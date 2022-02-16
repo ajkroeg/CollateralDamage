@@ -13,6 +13,7 @@ namespace CollateralDamage.Framework
         public string ContractID = "";
         public bool DoWarCrimes = false;
         public int DestructionThreshold = 0;
+        public int DestructionCap = 0;
         public float CBillResultOverride = 0;
         public float EmployerRepResult = 0;
         public float TargetRepResult = 0;

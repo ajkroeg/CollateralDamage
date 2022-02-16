@@ -58,7 +58,14 @@ namespace CollateralDamage
         public int FlatRateBonus = 25000; // 0 disables FlatRateBonus, stacks with PayBonusFactor;
 
         public int CDThresholdMin = 1;
+        public int CDCapMin = 0;
         public int CDThresholdMax = 10;
+        public int CDCapMax = 0;
+
+        public float EmployerRepResult = 0f;
+        public float TargetRepResult = 0f;
+
+        public float DoWarCrimesChance = 0f;
 
         public List<CollateralDamageInfo> WhitelistedContracts = new List<CollateralDamageInfo>(); // damages on these contracts
 

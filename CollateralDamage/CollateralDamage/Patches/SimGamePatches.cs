@@ -41,7 +41,7 @@ namespace CollateralDamage.Patches
 
                         var bonusINT = Mathf.RoundToInt(bonus);
 
-                        bonusINT *= ModState.BuildingsDestroyedThreshold;
+                        bonusINT *= ModState.CurrentWhiteListInfo.DestructionThreshold;
                         ModInit.modLog.LogMessage($"0D_NWC {bonusINT} in collateral damage bonuses!");
                         var bldDestructResult = new MissionObjectiveResult(
                             $"SUCCESS: Avoid Collateral Damage: ¢{bonusINT} bonus.",
@@ -58,7 +58,7 @@ namespace CollateralDamage.Patches
                         penalty += ModInit.modSettings.FlatRateBonus;
 
                         var penaltyINT = Mathf.RoundToInt(penalty);
-                        penaltyINT *= ModState.BuildingsDestroyedThreshold;
+                        penaltyINT *= ModState.CurrentWhiteListInfo.DestructionThreshold;
                         ModInit.modLog.LogMessage($"0D_NWC {penaltyINT} in failed collateral damage fees!");
                         var bldDestructResult = new MissionObjectiveResult(
                             $"FAILED: Inflict Collateral Damage: ¢-{penaltyINT} penalty.",
@@ -76,10 +76,10 @@ namespace CollateralDamage.Patches
                         var totalCost = 0f;
                         var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
 
-                        if (destructCostInfo.Value.Count > ModState.BuildingsDestroyedThreshold)
+                        if (destructCostInfo.Value.Count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             var diff = destructCostInfo.Value.Count -
-                                       ModState.BuildingsDestroyedThreshold;
+                                       ModState.CurrentWhiteListInfo.DestructionThreshold;
                             totalCost = destructCostInfo.Value.BuildingCost * diff;
 
                             var totalCostINT = Mathf.RoundToInt(totalCost);
@@ -90,10 +90,10 @@ namespace CollateralDamage.Patches
                                 false, true, ObjectiveStatus.Failed, false);
                             addObjectiveMethod.GetValue(bldDestructResult);
                         }
-                        else if (destructCostInfo.Value.Count <= ModState.BuildingsDestroyedThreshold)
+                        else if (destructCostInfo.Value.Count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             var bldDestructCost =
-                                $"Collateral Damage Fee: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Limit {ModState.BuildingsDestroyedThreshold}. No Fees Assessed";
+                                $"Collateral Damage Fee: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Limit {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Fees Assessed";
                             var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
                                 Guid.NewGuid().ToString(),
                                 false, true, ObjectiveStatus.Failed, false);
@@ -106,10 +106,10 @@ namespace CollateralDamage.Patches
                         var totalBonus = 0f;
                         var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
 
-                        if (destructCostInfo.Value.Count > ModState.BuildingsDestroyedThreshold)
+                        if (destructCostInfo.Value.Count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             var diff = destructCostInfo.Value.Count -
-                                       ModState.BuildingsDestroyedThreshold;
+                                       ModState.CurrentWhiteListInfo.DestructionThreshold;
                             totalBonus = destructCostInfo.Value.BuildingCost * diff;
 
                             var totalBonusINT = Mathf.RoundToInt(totalBonus);
@@ -120,10 +120,10 @@ namespace CollateralDamage.Patches
                                 false, true, ObjectiveStatus.Succeeded, false);
                             addObjectiveMethod.GetValue(bldDestructResult);
                         }
-                        else if (destructCostInfo.Value.Count <= ModState.BuildingsDestroyedThreshold)
+                        else if (destructCostInfo.Value.Count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             var bldDestructCost =
-                                $"{destructCostInfo.Value.Count} Destroyed Buildings < Contracted Amount {ModState.BuildingsDestroyedThreshold}. No Bonus Awarded.";
+                                $"{destructCostInfo.Value.Count} Destroyed Buildings < Contracted Amount {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Bonus Awarded.";
                             var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
                                 Guid.NewGuid().ToString(),
                                 false, true, ObjectiveStatus.Failed, false);
@@ -138,9 +138,9 @@ namespace CollateralDamage.Patches
                     {
                         var count = ModState.BuildingsDestroyedCount;
                         ModInit.modLog.LogMessage($"Total destroyed: {count}");
-                        if (count > ModState.BuildingsDestroyedThreshold)
+                        if (count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
-                            var diff = count - ModState.BuildingsDestroyedThreshold;
+                            var diff = count - ModState.CurrentWhiteListInfo.DestructionThreshold;
                             ModInit.modLog.LogMessage($"Diff offset {diff}");
                             foreach (var bldgDestroyed in ModState.BuildingsDestroyed)
                             {
@@ -182,9 +182,9 @@ namespace CollateralDamage.Patches
                     {
                         var count = ModState.BuildingsDestroyedCount;
                         ModInit.modLog.LogMessage($"Total destroyed: {count}");
-                        if (count > ModState.BuildingsDestroyedThreshold)
+                        if (count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
-                            var diff = count - ModState.BuildingsDestroyedThreshold;
+                            var diff = count - ModState.CurrentWhiteListInfo.DestructionThreshold;
                             ModInit.modLog.LogMessage($"Diff offset {diff}");
                             foreach (var bldgDestroyed in ModState.BuildingsDestroyed)
                             {
@@ -261,7 +261,7 @@ namespace CollateralDamage.Patches
                         if (ModState.CurrentWhiteListInfo.EmployerRepResult != 0 && employer.DoesGainReputation)
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.EmployerRepResult *
-                                                                     ModState.BuildingsDestroyedThreshold));
+                                                                     ModState.CurrentWhiteListInfo.DestructionThreshold));
                             var result = ___contract.EmployerReputationResults + bonusRep;
 
                             ModInit.modLog.LogMessage(
@@ -274,7 +274,7 @@ namespace CollateralDamage.Patches
                         if (ModState.CurrentWhiteListInfo.TargetRepResult != 0 && target.DoesGainReputation)
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.TargetRepResult *
-                                                                     ModState.BuildingsDestroyedThreshold));
+                                                                     ModState.CurrentWhiteListInfo.DestructionThreshold));
                             var result = ___contract.EmployerReputationResults + bonusRep;
 
                             ModInit.modLog.LogMessage(
@@ -290,7 +290,7 @@ namespace CollateralDamage.Patches
                         if (ModState.CurrentWhiteListInfo.EmployerRepResult != 0 && employer.DoesGainReputation)
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.EmployerRepResult *
-                                                                     ModState.BuildingsDestroyedThreshold));
+                                                                     ModState.CurrentWhiteListInfo.DestructionThreshold));
                             var result = ___contract.EmployerReputationResults - bonusRep;
 
                             ModInit.modLog.LogMessage(
@@ -303,7 +303,7 @@ namespace CollateralDamage.Patches
                         if (ModState.CurrentWhiteListInfo.TargetRepResult != 0 && target.DoesGainReputation)
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.TargetRepResult *
-                                                                     ModState.BuildingsDestroyedThreshold));
+                                                                     ModState.CurrentWhiteListInfo.DestructionThreshold));
                             var result = ___contract.EmployerReputationResults + bonusRep;
 
                             ModInit.modLog.LogMessage(
@@ -319,9 +319,9 @@ namespace CollateralDamage.Patches
                 {
                     var count = ModState.BuildingsDestroyedCount;
                     ModInit.modLog.LogMessage($"Total destroyed: {count}");
-                    if (count > ModState.BuildingsDestroyedThreshold)
+                    if (count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                     {
-                        var diff = count - ModState.BuildingsDestroyedThreshold;
+                        var diff = count - ModState.CurrentWhiteListInfo.DestructionThreshold;
                         ModInit.modLog.LogMessage($"Diff offset {diff}");
                         if (diff > 0)
                         {
@@ -413,7 +413,7 @@ namespace CollateralDamage.Patches
 
                         var bonusINT = Mathf.RoundToInt(bonus);
 
-                        bonusINT *= ModState.BuildingsDestroyedThreshold;
+                        bonusINT *= ModState.CurrentWhiteListInfo.DestructionThreshold;
                         ModInit.modLog.LogMessage($"CompleteContract 0D_NWC {bonusINT} in collateral damage bonuses!");
                         ModState.FinalPayResult = bonusINT;
                     }
@@ -426,7 +426,7 @@ namespace CollateralDamage.Patches
                         penalty += ModInit.modSettings.FlatRateBonus;
 
                         var penaltyINT = Mathf.RoundToInt(penalty);
-                        penaltyINT *= ModState.BuildingsDestroyedThreshold;
+                        penaltyINT *= ModState.CurrentWhiteListInfo.DestructionThreshold;
                         ModInit.modLog.LogMessage(
                             $"CompleteContract 0D_NWC {penaltyINT} in failed collateral damage fees!");
 
@@ -441,10 +441,10 @@ namespace CollateralDamage.Patches
                     {
                         var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
 
-                        if (destructCostInfo.Value.Count > ModState.BuildingsDestroyedThreshold)
+                        if (destructCostInfo.Value.Count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             var diff = destructCostInfo.Value.Count -
-                                       ModState.BuildingsDestroyedThreshold;
+                                       ModState.CurrentWhiteListInfo.DestructionThreshold;
                             var totalCost = destructCostInfo.Value.BuildingCost * diff;
 
                             var totalCostINT = Mathf.RoundToInt(totalCost);
@@ -453,10 +453,10 @@ namespace CollateralDamage.Patches
 
                             finalDamageCost -= totalCostINT;
                         }
-                        else if (destructCostInfo.Value.Count <= ModState.BuildingsDestroyedThreshold)
+                        else if (destructCostInfo.Value.Count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             ModInit.modLog.LogMessage(
-                                $"CompleteContract: Collateral Damage Fee: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Limit {ModState.BuildingsDestroyedThreshold}. No Fees Assessed");
+                                $"CompleteContract: Collateral Damage Fee: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Limit {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Fees Assessed");
                         }
                     }
 
@@ -464,10 +464,10 @@ namespace CollateralDamage.Patches
                     {
                         var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
 
-                        if (destructCostInfo.Value.Count > ModState.BuildingsDestroyedThreshold)
+                        if (destructCostInfo.Value.Count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             var diff = destructCostInfo.Value.Count -
-                                       ModState.BuildingsDestroyedThreshold;
+                                       ModState.CurrentWhiteListInfo.DestructionThreshold;
                             var totalBonus = destructCostInfo.Value.BuildingCost * diff;
 
                             var totalBonusINT = Mathf.RoundToInt(totalBonus);
@@ -475,10 +475,10 @@ namespace CollateralDamage.Patches
                                 $"CompleteContract: Collateral Damage Bonus: {destructCostInfo.Value.Count} Buildings x {destructCostInfo.Value.BuildingCost} ea. = ¢{totalBonusINT}");
                             ModState.FinalPayResult = totalBonusINT;
                         }
-                        else if (destructCostInfo.Value.Count <= ModState.BuildingsDestroyedThreshold)
+                        else if (destructCostInfo.Value.Count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
                             ModInit.modLog.LogMessage(
-                                $"CompleteContract: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Amount {ModState.BuildingsDestroyedThreshold}. No Bonus Awarded.");
+                                $"CompleteContract: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Amount {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Bonus Awarded.");
                         }
                     }
                 }
@@ -490,9 +490,9 @@ namespace CollateralDamage.Patches
                     {
                         var count = ModState.BuildingsDestroyedCount;
                         ModInit.modLog.LogMessage($"CompleteContract: Total destroyed: {count}");
-                        if (count > ModState.BuildingsDestroyedThreshold)
+                        if (count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
-                            var diff = count - ModState.BuildingsDestroyedThreshold;
+                            var diff = count - ModState.CurrentWhiteListInfo.DestructionThreshold;
                             ModInit.modLog.LogMessage($"CompleteContract: Diff offset {diff}");
                             foreach (var bldgDestroyed in ModState.BuildingsDestroyed)
                             {
@@ -532,9 +532,9 @@ namespace CollateralDamage.Patches
                     {
                         var count = ModState.BuildingsDestroyedCount;
                         ModInit.modLog.LogMessage($"CompleteContract: Total destroyed: {count}");
-                        if (count > ModState.BuildingsDestroyedThreshold)
+                        if (count > ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
-                            var diff = count - ModState.BuildingsDestroyedThreshold;
+                            var diff = count - ModState.CurrentWhiteListInfo.DestructionThreshold;
                             ModInit.modLog.LogMessage($"CompleteContract: Diff offset {diff}");
                             foreach (var bldgDestroyed in ModState.BuildingsDestroyed)
                             {
