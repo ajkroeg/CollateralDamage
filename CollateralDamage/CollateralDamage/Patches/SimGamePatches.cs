@@ -183,29 +183,37 @@ namespace CollateralDamage.Patches
                         mitigation += bldgDestroyedOp.Value.BuildingCost * bldgDestroyedOp.Value.Count * ModInit.modSettings.PublicNuisanceDamageOffset;
                         ModInit.modLog.LogMessage($"Maximum Damage Mitigation: {bldgDestroyedOp.Value.Count} Size {bldgDestroyedOp.Key} Buildings x {bldgDestroyedOp.Value.BuildingCost} ea. Cumulative offset: {mitigation}");
                     }
-                    
-                    if (mitigation > 0f)
-                    {
-                        var finalOffset = Mathf.RoundToInt(Mathf.Min(penalty, mitigation));
-                        var finalMitigation = $"Damage mitigation from enemy actions: ¢{finalOffset}";
-                        var bldDestructOpResult = new MissionObjectiveResult($"{finalMitigation}",
-                            Guid.NewGuid().ToString(),
-                            false, true, ObjectiveStatus.Ignored, false);
-                        addObjectiveMethod.GetValue(bldDestructOpResult);
-                    }
                 }
 
-                var bonusINT = Mathf.RoundToInt(bonus);
                 var penaltyINT = Mathf.RoundToInt(penalty);
                 if (penaltyINT > 0)
                 {
-                    var finalMitigation = $"Collateral damage penalties: -¢{penaltyINT}";
-                    var bldDestructOpResult = new MissionObjectiveResult($"{finalMitigation}",
+                    var finalMitigation = 0;
+                    if (mitigation > 0f)
+                    {
+                        finalMitigation = Mathf.RoundToInt(Mathf.Min(penalty, mitigation));
+                        var finalMitigationResult = $"Collateral Damage Fee: ¢{penaltyINT}\nEnemy action negating: ¢{finalMitigation}";
+                        var mitigationResult = new MissionObjectiveResult($"{finalMitigationResult}",
+                            Guid.NewGuid().ToString(),
+                            false, true, ObjectiveStatus.Ignored, false);
+                        addObjectiveMethod.GetValue(mitigationResult);
+                    }
+
+                    var netFee = penaltyINT - finalMitigation;
+                    var finalPenalty = "";
+                    if (netFee > 0)
+                    {
+                        finalPenalty = $"Final Collateral damage penalties: -¢{netFee}";
+                    }
+                    else finalPenalty = $"Final Collateral damage penalties: ¢{netFee}";
+
+                    var bldDestructOpResult = new MissionObjectiveResult($"{finalPenalty}",
                         Guid.NewGuid().ToString(),
                         false, true, ObjectiveStatus.Ignored, false);
                     addObjectiveMethod.GetValue(bldDestructOpResult);
                 }
 
+                var bonusINT = Mathf.RoundToInt(bonus);
                 if (bonusINT > 0)
                 {
                     var finalMitigation = $"Collateral damage bonuses: ¢{bonusINT}";
