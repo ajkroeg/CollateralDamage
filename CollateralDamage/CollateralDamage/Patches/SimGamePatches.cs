@@ -29,22 +29,23 @@ namespace CollateralDamage.Patches
 
                 var addObjectiveMethod = Traverse.Create(__instance)
                     .Method("AddObjective", new Type[] {typeof(MissionObjectiveResult)});
-
+                var bonus = 0f;
+                var penalty = 0f;
+                var mitigation = 0f;
                 if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 0)
                 {
                     if (!ModState.CurrentWhiteListInfo.DoWarCrimes)
                     {
-                        var bonus = 0f;
                         bonus += ___theContract.InitialContractValue *
                                  ModInit.modSettings.ContractPayFactorBonus;
                         bonus += ModInit.modSettings.FlatRateBonus;
 
-                        var bonusINT = Mathf.RoundToInt(bonus);
+                        //var bonusINT = Mathf.RoundToInt(bonus);
 
-                        bonusINT *= ModState.CurrentWhiteListInfo.DestructionThreshold;
-                        ModInit.modLog.LogMessage($"0D_NWC {bonusINT} in collateral damage bonuses!");
+                        bonus *= ModState.CurrentWhiteListInfo.DestructionThreshold;
+                        ModInit.modLog.LogMessage($"0D_NWC {bonus} in collateral damage bonuses!");
                         var bldDestructResult = new MissionObjectiveResult(
-                            $"SUCCESS: Avoid Collateral Damage: ¢{bonusINT} bonus.",
+                            $"SUCCESS: Avoid Collateral Damage. Bonus to be awarded.",
                             Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Succeeded, false);
                         addObjectiveMethod.GetValue(bldDestructResult);
@@ -52,87 +53,22 @@ namespace CollateralDamage.Patches
 
                     if (ModState.CurrentWhiteListInfo.DoWarCrimes)
                     {
-                        var penalty = 0f;
                         penalty += ___theContract.InitialContractValue *
                                    ModInit.modSettings.ContractPayFactorBonus;
                         penalty += ModInit.modSettings.FlatRateBonus;
 
-                        var penaltyINT = Mathf.RoundToInt(penalty);
-                        penaltyINT *= ModState.CurrentWhiteListInfo.DestructionThreshold;
-                        ModInit.modLog.LogMessage($"0D_NWC {penaltyINT} in failed collateral damage fees!");
+                        //var penaltyINT = Mathf.RoundToInt(penalty);
+                        penalty *= ModState.CurrentWhiteListInfo.DestructionThreshold;
+                        ModInit.modLog.LogMessage($"0D_NWC {penalty} in failed collateral damage fees!");
                         var bldDestructResult = new MissionObjectiveResult(
-                            $"FAILED: Inflict Collateral Damage: ¢-{penaltyINT} penalty.",
+                            $"FAILED: Inflict Collateral Damage. Fees to be assessed",
                             Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Failed, false);
                         addObjectiveMethod.GetValue(bldDestructResult);
                     }
                 }
 
-                if (ModState.HasObjective && ModState.BuildingsDestroyed.Count == 1 ||
-                    ModState.BuildingsDestroyed.FirstOrDefault().Key == 1)
-                {
-                    if (!ModState.CurrentWhiteListInfo.DoWarCrimes)
-                    {
-                        var totalCost = 0f;
-                        var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
-
-                        if (destructCostInfo.Value.Count > ModState.CurrentWhiteListInfo.DestructionThreshold)
-                        {
-                            var diff = destructCostInfo.Value.Count -
-                                       ModState.CurrentWhiteListInfo.DestructionThreshold;
-                            totalCost = destructCostInfo.Value.BuildingCost * diff;
-
-                            var totalCostINT = Mathf.RoundToInt(totalCost);
-                            var bldDestructCost =
-                                $"Collateral Damage Fee: {destructCostInfo.Value.Count} Buildings x {destructCostInfo.Value.BuildingCost} ea. = ¢-{totalCostINT}";
-                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
-                                Guid.NewGuid().ToString(),
-                                false, true, ObjectiveStatus.Failed, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
-                        }
-                        else if (destructCostInfo.Value.Count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
-                        {
-                            var bldDestructCost =
-                                $"Collateral Damage Fee: {destructCostInfo.Value.Count} Destroyed Buildings < Contracted Limit {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Fees Assessed";
-                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
-                                Guid.NewGuid().ToString(),
-                                false, true, ObjectiveStatus.Failed, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
-                        }
-                    }
-
-                    else if (ModState.CurrentWhiteListInfo.DoWarCrimes)
-                    {
-                        var totalBonus = 0f;
-                        var destructCostInfo = ModState.BuildingsDestroyed.FirstOrDefault();
-
-                        if (destructCostInfo.Value.Count > ModState.CurrentWhiteListInfo.DestructionThreshold)
-                        {
-                            var diff = destructCostInfo.Value.Count -
-                                       ModState.CurrentWhiteListInfo.DestructionThreshold;
-                            totalBonus = destructCostInfo.Value.BuildingCost * diff;
-
-                            var totalBonusINT = Mathf.RoundToInt(totalBonus);
-                            var bldDestructCost =
-                                $"Collateral Damage Bonus: {destructCostInfo.Value.Count} Buildings x {destructCostInfo.Value.BuildingCost} ea. = ¢{totalBonusINT}";
-                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
-                                Guid.NewGuid().ToString(),
-                                false, true, ObjectiveStatus.Succeeded, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
-                        }
-                        else if (destructCostInfo.Value.Count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
-                        {
-                            var bldDestructCost =
-                                $"{destructCostInfo.Value.Count} Destroyed Buildings < Contracted Amount {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Bonus Awarded.";
-                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
-                                Guid.NewGuid().ToString(),
-                                false, true, ObjectiveStatus.Failed, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
-                        }
-                    }
-                }
-
-                else if (ModState.HasObjective && ModState.BuildingsDestroyed.Count > 1)
+                else if (ModState.HasObjective && ModState.BuildingsDestroyed.Count > 0)
                 {
                     if (!ModState.CurrentWhiteListInfo.DoWarCrimes)
                     {
@@ -166,15 +102,22 @@ namespace CollateralDamage.Patches
                                         $"bldgDestroyed.Value.Count < 1, continuing and skipping this size result");
                                     continue;
                                 }
-
-                                var totalCost = bldgDestroyed.Value.BuildingCost * bldgDestroyed.Value.Count;
-                                var bldDestructCost =
-                                    $"Collateral Damage Fees: {bldgDestroyed.Value.Count} Size {bldgDestroyed.Key} Buildings > Contracted Limit x {bldgDestroyed.Value.BuildingCost} ea. = ¢-{totalCost}";
-                                var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
-                                    Guid.NewGuid().ToString(),
-                                    false, true, ObjectiveStatus.Succeeded, false);
-                                addObjectiveMethod.GetValue(bldDestructResult);
+                                penalty += bldgDestroyed.Value.BuildingCost * bldgDestroyed.Value.Count;
                             }
+                            var bldDestructCost = $"FAILED: Avoid Collateral Damage. {ModState.BuildingsDestroyedCount} buildings destroyed! Fees to be assessed.";
+                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
+                                Guid.NewGuid().ToString(),
+                                false, true, ObjectiveStatus.Failed, false);
+                            addObjectiveMethod.GetValue(bldDestructResult);
+                        }
+                        else if (count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
+                        {
+                            var bldDestructCost =
+                                $"FAILED: Avoid Collateral Damage. {ModState.BuildingsDestroyedCount} Destroyed Buildings < Contracted Limit {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Fees Assessed";
+                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
+                                Guid.NewGuid().ToString(),
+                                false, true, ObjectiveStatus.Failed, false);
+                            addObjectiveMethod.GetValue(bldDestructResult);
                         }
                     }
 
@@ -211,33 +154,65 @@ namespace CollateralDamage.Patches
                                     continue;
                                 }
 
-                                var totalBonus = bldgDestroyed.Value.BuildingCost * bldgDestroyed.Value.Count;
-                                var bldDestructCost =
-                                    $"Collateral Damage Bonus:  {bldgDestroyed.Value.Count} Size {bldgDestroyed.Key} Buildings > Contracted Limit x {bldgDestroyed.Value.BuildingCost} ea. = ¢{totalBonus}";
-                                var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
-                                    Guid.NewGuid().ToString(),
-                                    false, true, ObjectiveStatus.Succeeded, false);
-                                addObjectiveMethod.GetValue(bldDestructResult);
+                                bonus += bldgDestroyed.Value.BuildingCost * bldgDestroyed.Value.Count;
                             }
+                            var bldDestructCost =
+                                $"SUCCESS: Inflict Collateral Damage. {ModState.BuildingsDestroyedCount} Destroyed Buildings >= Contracted Limit {ModState.CurrentWhiteListInfo.DestructionThreshold}. Bonus to be awarded.";
+                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
+                                Guid.NewGuid().ToString(),
+                                false, true, ObjectiveStatus.Succeeded, false);
+                            addObjectiveMethod.GetValue(bldDestructResult);
+                        }
+                        else if (count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
+                        {
+                            var bldDestructCost =
+                                $"{ModState.BuildingsDestroyedCount} Destroyed Buildings <= Contracted Limit {ModState.CurrentWhiteListInfo.DestructionThreshold}. No Bonus Awarded.";
+                            var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
+                                Guid.NewGuid().ToString(),
+                                false, true, ObjectiveStatus.Failed, false);
+                            addObjectiveMethod.GetValue(bldDestructResult);
                         }
                     }
                 }
 
                 if (ModState.HasObjective && ModInit.modSettings.PublicNuisanceDamageOffset > 0f &&
-                    ModState.BuildingsDestroyedByOpFor.Count > 0 && !ModState.CurrentWhiteListInfo.DoWarCrimes)
+                    ModState.BuildingsDestroyedByOpFor.Count > 0 && !ModState.CurrentWhiteListInfo.DoWarCrimes && penalty > 0f)
                 {
                     foreach (var bldgDestroyedOp in ModState.BuildingsDestroyedByOpFor)
                     {
-                        var totalOffset = Mathf.RoundToInt(bldgDestroyedOp.Value.BuildingCost *
-                                                           bldgDestroyedOp.Value.Count *
-                                                           ModInit.modSettings.PublicNuisanceDamageOffset);
-                        var bldDestructOpCost =
-                            $"Maximum Damage Mitigation: {bldgDestroyedOp.Value.Count} Size {bldgDestroyedOp.Key} Buildings x {bldgDestroyedOp.Value.BuildingCost} ea. = ¢{totalOffset}";
-                        var bldDestructOpResult = new MissionObjectiveResult($"{bldDestructOpCost}",
+                        mitigation += bldgDestroyedOp.Value.BuildingCost * bldgDestroyedOp.Value.Count * ModInit.modSettings.PublicNuisanceDamageOffset;
+                        ModInit.modLog.LogMessage($"Maximum Damage Mitigation: {bldgDestroyedOp.Value.Count} Size {bldgDestroyedOp.Key} Buildings x {bldgDestroyedOp.Value.BuildingCost} ea. Cumulative offset: {mitigation}");
+                    }
+                    
+                    if (mitigation > 0f)
+                    {
+                        var finalOffset = Mathf.RoundToInt(Mathf.Min(penalty, mitigation));
+                        var finalMitigation = $"Damage mitigation from enemy actions: ¢{finalOffset}";
+                        var bldDestructOpResult = new MissionObjectiveResult($"{finalMitigation}",
                             Guid.NewGuid().ToString(),
-                            false, true, ObjectiveStatus.Succeeded, false);
+                            false, true, ObjectiveStatus.Ignored, false);
                         addObjectiveMethod.GetValue(bldDestructOpResult);
                     }
+                }
+
+                var bonusINT = Mathf.RoundToInt(bonus);
+                var penaltyINT = Mathf.RoundToInt(penalty);
+                if (penaltyINT > 0)
+                {
+                    var finalMitigation = $"Collateral damage penalties: -¢{penaltyINT}";
+                    var bldDestructOpResult = new MissionObjectiveResult($"{finalMitigation}",
+                        Guid.NewGuid().ToString(),
+                        false, true, ObjectiveStatus.Ignored, false);
+                    addObjectiveMethod.GetValue(bldDestructOpResult);
+                }
+
+                if (bonusINT > 0)
+                {
+                    var finalMitigation = $"Collateral damage bonuses: ¢{bonusINT}";
+                    var bldDestructOpResult = new MissionObjectiveResult($"{finalMitigation}",
+                        Guid.NewGuid().ToString(),
+                        false, true, ObjectiveStatus.Ignored, false);
+                    addObjectiveMethod.GetValue(bldDestructOpResult);
                 }
             }
         }
