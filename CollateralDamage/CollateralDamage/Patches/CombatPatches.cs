@@ -93,24 +93,29 @@ namespace CollateralDamage.Patches
                 }
                 if (roll <= ModInit.modSettings.CollateralDamageObjectiveChance)
                 {
+                    if (contract.Override.ContractTypeValue.Name == "CaptureBase") goto skipWarCrimes;
+                    if (ModInit.modSettings.EmployerPlanetsOnly && contract.Override.employerTeam.FactionValue.Name != sim.CurSystem.OwnerValue.Name)
+                    {
+                        return;
+                    }
 
-                    if (ModInit.modSettings.EmployerPlanetsOnly && contract.Override.employerTeam.FactionValue.Name !=
-                        sim.CurSystem.OwnerValue.Name)
+                    if (contract.Override.employerTeam.FactionValue.Name != sim.CurSystem.OwnerValue.Name)
                     {
                         var warCrimesRoll = ModInit.Random.NextDouble();
-                        if (warCrimesRoll <= ModInit.modSettings.DoWarCrimesChance && contract.Override.ContractTypeValue.Name != "CaptureBase")
+                        if (warCrimesRoll <= ModInit.modSettings.DoWarCrimesChance && __instance.Combat.MapMetaData.biomeSkin == Biome.BIOMESKIN.urbanHighTech)
                         {
                             ModInit.modLog.LogMessage($"Roll {warCrimesRoll} <= threshold {ModInit.modSettings.DoWarCrimesChance}, setting DoWarCrimes true");
                             ModState.CurrentWhiteListInfo.DoWarCrimes = true;
                         }
                         else
                         {
-                            ModInit.modLog.LogMessage($"Roll {warCrimesRoll} > threshold {ModInit.modSettings.DoWarCrimesChance}, no warcrimes, no objective.");
+                            ModInit.modLog.LogMessage($"Roll {warCrimesRoll} > threshold {ModInit.modSettings.DoWarCrimesChance} && contract is not CaptureBase, no warcrimes, no objective.");
                             ModState.StartFirstRoundOnce = true;
                             return;
                         }
                     }
 
+                    skipWarCrimes:
                     ModInit.modLog.LogMessage(
                         $"Roll {roll} <= threshold {ModInit.modSettings.CollateralDamageObjectiveChance}, creating secondary objective. Is DoWarCrimes?: {ModState.CurrentWhiteListInfo.DoWarCrimes}");
 
