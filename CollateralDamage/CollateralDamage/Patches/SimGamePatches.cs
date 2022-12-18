@@ -14,7 +14,7 @@ namespace CollateralDamage.Patches
         [HarmonyPatch(typeof(AAR_ContractObjectivesWidget), "FillInObjectives")]
         public static class AAR_ContractObjectivesWidget_FillInObjectives_Patch
         {
-            public static void Postfix(AAR_ContractObjectivesWidget __instance, Contract ___theContract)
+            public static void Postfix(AAR_ContractObjectivesWidget __instance)
             {
                 ModInit.modLog.LogMessage($"FillInObjectives: Dumping ModState");
                 ModInit.modLog.LogMessage($"FillInObjectives: HasObjective:{ModState.HasObjective}");
@@ -27,8 +27,7 @@ namespace CollateralDamage.Patches
 
                 if (UnityGameInstance.BattleTechGame.Simulation == null) return;
 
-                var addObjectiveMethod = Traverse.Create(__instance)
-                    .Method("AddObjective", new Type[] {typeof(MissionObjectiveResult)});
+                //var addObjectiveMethod = Traverse.Create(__instance).Method("AddObjective", new Type[] {typeof(MissionObjectiveResult)});
                 var bonus = 0f;
                 var penalty = 0f;
                 var mitigation = 0f;
@@ -36,7 +35,7 @@ namespace CollateralDamage.Patches
                 {
                     if (!ModState.CurrentWhiteListInfo.DoWarCrimes)
                     {
-                        bonus += ___theContract.InitialContractValue *
+                        bonus += __instance.theContract.InitialContractValue *
                                  ModInit.modSettings.ContractPayFactorBonus;
                         bonus += ModInit.modSettings.FlatRateBonus;
 
@@ -48,12 +47,13 @@ namespace CollateralDamage.Patches
                             $"SUCCESS: Avoid Collateral Damage. Bonus to be awarded.",
                             Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Succeeded, false);
-                        addObjectiveMethod.GetValue(bldDestructResult);
+                        __instance.AddObjective(bldDestructResult);
+                        //addObjectiveMethod.GetValue(bldDestructResult);
                     }
 
                     if (ModState.CurrentWhiteListInfo.DoWarCrimes)
                     {
-                        penalty += ___theContract.InitialContractValue *
+                        penalty += __instance.theContract.InitialContractValue *
                                    ModInit.modSettings.ContractPayFactorBonus;
                         penalty += ModInit.modSettings.FlatRateBonus;
 
@@ -64,7 +64,8 @@ namespace CollateralDamage.Patches
                             $"FAILED: Inflict Collateral Damage. Fees to be assessed",
                             Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Failed, false);
-                        addObjectiveMethod.GetValue(bldDestructResult);
+                        //addObjectiveMethod.GetValue(bldDestructResult);
+                        __instance.AddObjective(bldDestructResult);
                     }
                 }
 
@@ -108,7 +109,8 @@ namespace CollateralDamage.Patches
                             var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
                                 Guid.NewGuid().ToString(),
                                 false, true, ObjectiveStatus.Failed, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
+                            //addObjectiveMethod.GetValue(bldDestructResult);
+                            __instance.AddObjective(bldDestructResult);
                         }
                         else if (count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
@@ -117,7 +119,8 @@ namespace CollateralDamage.Patches
                             var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
                                 Guid.NewGuid().ToString(),
                                 false, true, ObjectiveStatus.Failed, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
+                                //addObjectiveMethod.GetValue(bldDestructResult);
+                            __instance.AddObjective(bldDestructResult);
                         }
                     }
 
@@ -161,7 +164,7 @@ namespace CollateralDamage.Patches
                             var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
                                 Guid.NewGuid().ToString(),
                                 false, true, ObjectiveStatus.Succeeded, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
+                            __instance.AddObjective(bldDestructResult);
                         }
                         else if (count <= ModState.CurrentWhiteListInfo.DestructionThreshold)
                         {
@@ -170,7 +173,7 @@ namespace CollateralDamage.Patches
                             var bldDestructResult = new MissionObjectiveResult($"{bldDestructCost}",
                                 Guid.NewGuid().ToString(),
                                 false, true, ObjectiveStatus.Failed, false);
-                            addObjectiveMethod.GetValue(bldDestructResult);
+                            __instance.AddObjective(bldDestructResult);
                         }
                     }
                 }
@@ -196,7 +199,7 @@ namespace CollateralDamage.Patches
                         var mitigationResult = new MissionObjectiveResult($"{finalMitigationResult}",
                             Guid.NewGuid().ToString(),
                             false, true, ObjectiveStatus.Ignored, false);
-                        addObjectiveMethod.GetValue(mitigationResult);
+                        __instance.AddObjective(mitigationResult);
                     }
 
                     var netFee = penaltyINT - finalMitigation;
@@ -210,7 +213,7 @@ namespace CollateralDamage.Patches
                     var bldDestructOpResult = new MissionObjectiveResult($"{finalPenalty}",
                         Guid.NewGuid().ToString(),
                         false, true, ObjectiveStatus.Ignored, false);
-                    addObjectiveMethod.GetValue(bldDestructOpResult);
+                    __instance.AddObjective(bldDestructOpResult);
                 }
 
                 var bonusINT = Mathf.RoundToInt(bonus);
@@ -220,7 +223,7 @@ namespace CollateralDamage.Patches
                     var bldDestructOpResult = new MissionObjectiveResult($"{finalMitigation}",
                         Guid.NewGuid().ToString(),
                         false, true, ObjectiveStatus.Ignored, false);
-                    addObjectiveMethod.GetValue(bldDestructOpResult);
+                    __instance.AddObjective(bldDestructOpResult);
                 }
             }
         }
@@ -230,12 +233,10 @@ namespace CollateralDamage.Patches
             new Type[] { })]
         public static class AAR_FactionReputationResultWidget_FillInData_Patch
         {
-            public static void Postfix(AAR_FactionReputationResultWidget __instance, SimGameState ___simState,
-                Contract ___contract,
-                List<SGReputationWidget_Simple> ___FactionWidgets, RectTransform ___WidgetListAnchor)
+            public static void Postfix(AAR_FactionReputationResultWidget __instance)
             {
-                var employer = ___contract.Override.employerTeam.FactionDef.FactionValue;
-                var target = ___contract.Override.targetTeam.FactionDef.FactionValue;
+                var employer = __instance.contract.Override.employerTeam.FactionDef.FactionValue;
+                var target = __instance.contract.Override.targetTeam.FactionDef.FactionValue;
 
                 if (ModState.HasObjective && ModState.BuildingsDestroyedCount == 0)
                 {
@@ -245,26 +246,26 @@ namespace CollateralDamage.Patches
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.EmployerRepResult *
                                                                      ModState.CurrentWhiteListInfo.DestructionThreshold));
-                            var result = ___contract.EmployerReputationResults + bonusRep;
+                            var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                             ModInit.modLog.LogMessage(
-                                $"0D_NWC - Original Employer Rep: {___contract.EmployerReputationResults}, Employer BonusRep for no CD: {bonusRep} for total change of {result}");
+                                $"0D_NWC - Original Employer Rep: {__instance.contract.EmployerReputationResults}, Employer BonusRep for no CD: {bonusRep} for total change of {result}");
                             __instance.SetWidgetData(0, employer, result, true);
 
-                            ___simState.SetReputation(employer, bonusRep);
+                            __instance.simState.SetReputation(employer, bonusRep);
                         }
 
                         if (ModState.CurrentWhiteListInfo.TargetRepResult != 0 && target.DoesGainReputation)
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.TargetRepResult *
                                                                      ModState.CurrentWhiteListInfo.DestructionThreshold));
-                            var result = ___contract.EmployerReputationResults + bonusRep;
+                            var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                             ModInit.modLog.LogMessage(
-                                $"0D_NWC - Original Target Rep: {___contract.TargetReputationResults}, Target BonusRep for no CD: {bonusRep} for total change of {result}");
+                                $"0D_NWC - Original Target Rep: {__instance.contract.TargetReputationResults}, Target BonusRep for no CD: {bonusRep} for total change of {result}");
                             __instance.SetWidgetData(1, target, result, true);
 
-                            ___simState.SetReputation(target, bonusRep);
+                            __instance.simState.SetReputation(target, bonusRep);
                         }
                     }
 
@@ -274,26 +275,26 @@ namespace CollateralDamage.Patches
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.EmployerRepResult *
                                                                      ModState.CurrentWhiteListInfo.DestructionThreshold));
-                            var result = ___contract.EmployerReputationResults - bonusRep;
+                            var result = __instance.contract.EmployerReputationResults - bonusRep;
 
                             ModInit.modLog.LogMessage(
-                                $"0D_DWC - Original Employer Rep: {___contract.EmployerReputationResults}, Employer BonusRep for no CD: {-bonusRep} for total change of {result}");
+                                $"0D_DWC - Original Employer Rep: {__instance.contract.EmployerReputationResults}, Employer BonusRep for no CD: {-bonusRep} for total change of {result}");
                             __instance.SetWidgetData(0, employer, result, true);
 
-                            ___simState.SetReputation(employer, -bonusRep);
+                            __instance.simState.SetReputation(employer, -bonusRep);
                         }
 
                         if (ModState.CurrentWhiteListInfo.TargetRepResult != 0 && target.DoesGainReputation)
                         {
                             var bonusRep = Math.Abs(Mathf.RoundToInt(ModState.CurrentWhiteListInfo.TargetRepResult *
                                                                      ModState.CurrentWhiteListInfo.DestructionThreshold));
-                            var result = ___contract.EmployerReputationResults + bonusRep;
+                            var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                             ModInit.modLog.LogMessage(
-                                $"0D_DWC - Original Target Rep: {___contract.TargetReputationResults}, Target BonusRep for no CD: {bonusRep} for total change of {result}");
+                                $"0D_DWC - Original Target Rep: {__instance.contract.TargetReputationResults}, Target BonusRep for no CD: {bonusRep} for total change of {result}");
                             __instance.SetWidgetData(1, target, result, true);
 
-                            ___simState.SetReputation(target, bonusRep);
+                            __instance.simState.SetReputation(target, bonusRep);
                         }
                     }
                 }
@@ -314,26 +315,26 @@ namespace CollateralDamage.Patches
                                 {
                                     var bonusRep =
                                         Mathf.RoundToInt(ModState.CurrentWhiteListInfo.EmployerRepResult * diff);
-                                    var result = ___contract.EmployerReputationResults + bonusRep;
+                                    var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                                     ModInit.modLog.LogMessage(
-                                        $"+D_NWC - Original Employer Rep: {___contract.EmployerReputationResults}, Employer Rep Penalty for CD: {bonusRep} for total change of {result}");
+                                        $"+D_NWC - Original Employer Rep: {__instance.contract.EmployerReputationResults}, Employer Rep Penalty for CD: {bonusRep} for total change of {result}");
                                     __instance.SetWidgetData(0, employer, result, true);
 
-                                    ___simState.SetReputation(employer, bonusRep);
+                                    __instance.simState.SetReputation(employer, bonusRep);
                                 }
 
                                 if (ModState.CurrentWhiteListInfo.TargetRepResult != 0 && target.DoesGainReputation)
                                 {
                                     var bonusRep =
                                         Mathf.RoundToInt(ModState.CurrentWhiteListInfo.TargetRepResult * diff);
-                                    var result = ___contract.EmployerReputationResults + bonusRep;
+                                    var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                                     ModInit.modLog.LogMessage(
-                                        $"+D_NWC - Original Target Rep: {___contract.TargetReputationResults}, Target Rep Penalty for CD: {bonusRep} for total change of {result}");
+                                        $"+D_NWC - Original Target Rep: {__instance.contract.TargetReputationResults}, Target Rep Penalty for CD: {bonusRep} for total change of {result}");
                                     __instance.SetWidgetData(1, target, result, true);
 
-                                    ___simState.SetReputation(target, bonusRep);
+                                    __instance.simState.SetReputation(target, bonusRep);
                                 }
                             }
 
@@ -343,26 +344,26 @@ namespace CollateralDamage.Patches
                                 {
                                     var bonusRep =
                                         Mathf.RoundToInt(ModState.CurrentWhiteListInfo.EmployerRepResult * diff);
-                                    var result = ___contract.EmployerReputationResults + bonusRep;
+                                    var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                                     ModInit.modLog.LogMessage(
-                                        $"+D_DWC - Original Employer Rep: {___contract.EmployerReputationResults}, Employer Rep Penalty for CD: {bonusRep} for total change of {-result}");
+                                        $"+D_DWC - Original Employer Rep: {__instance.contract.EmployerReputationResults}, Employer Rep Penalty for CD: {bonusRep} for total change of {-result}");
                                     __instance.SetWidgetData(0, employer, result, true);
 
-                                    ___simState.SetReputation(employer, bonusRep);
+                                    __instance.simState.SetReputation(employer, bonusRep);
                                 }
 
                                 if (ModState.CurrentWhiteListInfo.TargetRepResult != 0 && target.DoesGainReputation)
                                 {
                                     var bonusRep =
                                         Mathf.RoundToInt(ModState.CurrentWhiteListInfo.TargetRepResult * diff);
-                                    var result = ___contract.EmployerReputationResults + bonusRep;
+                                    var result = __instance.contract.EmployerReputationResults + bonusRep;
 
                                     ModInit.modLog.LogMessage(
-                                        $"+D_DWC - Original Target Rep: {___contract.TargetReputationResults}, Target Rep Penalty for CD: {bonusRep} for total change of {result}");
+                                        $"+D_DWC - Original Target Rep: {__instance.contract.TargetReputationResults}, Target Rep Penalty for CD: {bonusRep} for total change of {result}");
                                     __instance.SetWidgetData(1, target, result, true);
 
-                                    ___simState.SetReputation(target, bonusRep);
+                                    __instance.simState.SetReputation(target, bonusRep);
                                 }
                             }
                         }
@@ -577,7 +578,7 @@ namespace CollateralDamage.Patches
                 ModInit.modLog.LogMessage($"MoneyResults before penalties: {__instance.MoneyResults}");
                 var moneyResults = __instance.MoneyResults + ModState.FinalPayResult + endingCosts;
                 ModInit.modLog.LogMessage($"MoneyResults after penalties: {moneyResults}");
-                Traverse.Create(__instance).Property("MoneyResults").SetValue(moneyResults);
+                __instance.MoneyResults = moneyResults;//Traverse.Create(__instance).Property("MoneyResults").SetValue(moneyResults);
             }
         }
 

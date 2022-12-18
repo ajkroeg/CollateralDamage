@@ -45,7 +45,7 @@ namespace CollateralDamage.Framework
                 this.Count = count;
             }
         }
-        public static MethodInfo _SetProgressText = AccessTools.Method(typeof(CombatHUDObjectiveItem), "SetProgressText");
+        //public static MethodInfo _SetProgressText = AccessTools.Method(typeof(CombatHUDObjectiveItem), "SetProgressText");
         public static void LogSettings()
         {
             ModInit.modLog.LogMessage($"EmployerPlanetsOnly: {ModInit.modSettings.EmployerPlanetsOnly}");

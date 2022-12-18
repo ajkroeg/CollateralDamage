@@ -39,8 +39,8 @@ namespace CollateralDamage.Patches
                     
                     ModState.HasObjective = true;
 
-                    var HUD = Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
-                    var Notify = Traverse.Create(HUD).Property("ObjectiveStatusNotify").GetValue<CombatHUDObjectiveStatusNotify>();
+                    var HUD = CameraControl.Instance.HUD;//Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
+                    var Notify = HUD.ObjectiveStatusNotify;//Traverse.Create(HUD).Property("ObjectiveStatusNotify").GetValue<CombatHUDObjectiveStatusNotify>();
                     var objectivesList = HUD.ObjectivesList;
                     ModInit.modLog.LogMessage(
                         $"Collateral Damage Objective Added to objectives");
@@ -48,9 +48,8 @@ namespace CollateralDamage.Patches
                         UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
                     objectiveUIItem.transform.SetParent(objectivesList.objectivesStack.transform);
                     objectiveUIItem.transform.localScale = Vector3.one;
-                    var objectiveUIList = Traverse.Create(objectivesList).Field("objectiveUIItems")
-                        .GetValue<List<CombatHUDObjectiveItem>>();
-                    Traverse.Create(objectiveUIItem).Field("notify").SetValue(Notify);
+                    var objectiveUIList = objectivesList.objectiveUIItems;//Traverse.Create(objectivesList).Field("objectiveUIItems").GetValue<List<CombatHUDObjectiveItem>>();
+                    objectiveUIItem.notify = Notify;//Traverse.Create(objectiveUIItem).Field("notify").SetValue(Notify);
                     objectiveUIList.Add(objectiveUIItem);
 
                     if (whitelistedInfo.DoWarCrimes)
@@ -58,15 +57,16 @@ namespace CollateralDamage.Patches
                         var text = new Text($"Inflict Collateral Damage! Destroy 1 extra to avoid penalty, and at least {ModState.CurrentWhiteListInfo.DestructionThreshold + 1} buildings to receive bonus.");
                         objectiveUIItem.Init(new Text(text), false, false);
                         var progressText = new Text($"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                        Util._SetProgressText.Invoke(objectiveUIItem, new object[] {progressText});
-
+                        //Util._SetProgressText.Invoke(objectiveUIItem, new object[] {progressText});
+                        objectiveUIItem.SetProgressText(progressText);
                     }
                     else
                     {
                         var text = new Text($"Avoid Collateral Damage! Destroy fewer than {ModState.CurrentWhiteListInfo.DestructionThreshold + 1} buildings to avoid penalties. Destroy 0 for bonus!");
                         objectiveUIItem.Init(new Text(text), false, false);
                         var progressText = new Text($"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                        Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                        //Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                        objectiveUIItem.SetProgressText(progressText);
                     }
 
                     ModInit.modLog.LogMessage(
@@ -133,8 +133,8 @@ namespace CollateralDamage.Patches
                     
                     ModState.CurrentWhiteListInfo.DestructionCap = cap;
 
-                    var HUD = Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
-                    var Notify = Traverse.Create(HUD).Property("ObjectiveStatusNotify").GetValue<CombatHUDObjectiveStatusNotify>();
+                    var HUD = CameraControl.Instance.HUD;//Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
+                    var Notify = HUD.ObjectiveStatusNotify;//Traverse.Create(HUD).Property("ObjectiveStatusNotify").GetValue<CombatHUDObjectiveStatusNotify>();
                     var objectivesList = HUD.ObjectivesList;
                     ModInit.modLog.LogMessage(
                         $"Collateral Damage Objective Added to objectives with threshold {ModState.CurrentWhiteListInfo.DestructionThreshold} and cap {ModState.CurrentWhiteListInfo.DestructionCap}");
@@ -142,9 +142,8 @@ namespace CollateralDamage.Patches
                         UnityEngine.Object.Instantiate<CombatHUDObjectiveItem>(objectivesList.secondaryObjectivePrefab);
                     objectiveUIItem.transform.SetParent(objectivesList.objectivesStack.transform);
                     objectiveUIItem.transform.localScale = Vector3.one;
-                    var objectiveUIList = Traverse.Create(objectivesList).Field("objectiveUIItems")
-                        .GetValue<List<CombatHUDObjectiveItem>>();
-                    Traverse.Create(objectiveUIItem).Field("notify").SetValue(Notify);
+                    var objectiveUIList = objectivesList.objectiveUIItems;//Traverse.Create(objectivesList).Field("objectiveUIItems") .GetValue<List<CombatHUDObjectiveItem>>();
+                    objectiveUIItem.notify = Notify;//Traverse.Create(objectiveUIItem).Field("notify").SetValue(Notify);
                     objectiveUIList.Add(objectiveUIItem);
 
                     if (ModState.CurrentWhiteListInfo.DoWarCrimes)
@@ -152,15 +151,16 @@ namespace CollateralDamage.Patches
                         var text = new Text($"Inflict Collateral Damage! Destroy 1 extra to avoid penalty, and at least {ModState.CurrentWhiteListInfo.DestructionThreshold + 1} buildings to receive bonus.");
                         objectiveUIItem.Init(new Text(text), false, false);
                         var progressText = new Text($"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                        Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
-
+                        //Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                        objectiveUIItem.SetProgressText(progressText);
                     }
                     else
                     {
                         var text = new Text($"Avoid Collateral Damage! Destroy fewer than {ModState.CurrentWhiteListInfo.DestructionThreshold + 1} buildings to avoid penalties. Destroy 0 for bonus!");
                         objectiveUIItem.Init(new Text(text), false, false);
                         var progressText = new Text($"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                        Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                        //Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                        objectiveUIItem.SetProgressText(progressText);
                     }
 
                     ModInit.modLog.LogMessage(
@@ -186,13 +186,12 @@ namespace CollateralDamage.Patches
         public static class Building_FlagForDeath
         {
             public static void Prefix(BattleTech.Building __instance, string reason, DeathMethod deathMethod,
-                DamageType damageType, int location, int stackItemID, string attackerID, bool isSilent,
-                bool ____flaggedForDeath, bool ___isObjectiveTarget)
+                DamageType damageType, int location, int stackItemID, string attackerID, bool isSilent)
             {
                 if (__instance.Combat.ActiveContract.ContractTypeValue.IsSkirmish) return;
 
-                if (____flaggedForDeath) return;
-                if (__instance.team.GUID != "421027ec-8480-4cc6-bf01-369f84a22012" || ___isObjectiveTarget)
+                if (__instance.IsFlaggedForDeath) return;
+                if (__instance.team.GUID != "421027ec-8480-4cc6-bf01-369f84a22012" || __instance.isObjectiveTarget)
                     return; // is not Team "World" or is objective target
 
                 var attackingUnit = __instance.Combat.FindActorByGUID(attackerID);
@@ -295,10 +294,9 @@ namespace CollateralDamage.Patches
 
                     ModState.BuildingsDestroyedCount += 1;
 
-                    var HUD = Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
+                    var HUD = CameraControl.Instance.HUD;//Traverse.Create(CameraControl.Instance).Property("HUD").GetValue<CombatHUD>();
                     var objectivesList = HUD.ObjectivesList;
-                    var objectiveUIList = Traverse.Create(objectivesList).Field("objectiveUIItems")
-                        .GetValue<List<CombatHUDObjectiveItem>>();
+                    var objectiveUIList = objectivesList.objectiveUIItems;//Traverse.Create(objectivesList).Field("objectiveUIItems").GetValue<List<CombatHUDObjectiveItem>>();
 
                     if (!ModState.CurrentWhiteListInfo.DoWarCrimes)
                     {
@@ -333,7 +331,8 @@ namespace CollateralDamage.Patches
                                     objectiveUIItem.gameObject.SetActive(true);
                                     var progressText = new Text(
                                         $"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                                    Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                                    //Util._SetProgressText.Invoke(objectiveUIItem, new object[] { progressText });
+                                    objectiveUIItem.SetProgressText(progressText);
                                     ModInit.modLog.LogMessage(
                                         $"Collateral Damage objectiveUIItem FAILED set active");
                                 }
@@ -341,7 +340,8 @@ namespace CollateralDamage.Patches
                                 {
                                     var progressText = new Text(
                                             $"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                                    Util._SetProgressText.Invoke(objectiveFAIL, new object[] { progressText });
+                                    //Util._SetProgressText.Invoke(objectiveFAIL, new object[] { progressText });
+                                    objectiveFAIL.SetProgressText(progressText);
                                     ModInit.modLog.LogMessage(
                                         $"Collateral Damage objectiveUIItem FAILED set active");
                                 }
@@ -350,7 +350,7 @@ namespace CollateralDamage.Patches
                             {
                                 var progressText =
                                     new Text($"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold + 1}");
-                                Util._SetProgressText.Invoke(objectiveAVOID, new object[] { progressText });
+                                objectiveAVOID.SetProgressText(progressText);
                             }
                         }
                     }
@@ -368,7 +368,7 @@ namespace CollateralDamage.Patches
                                 $"Inflict Collateral Damage! Destroy 1 extra to avoid penalty, and at least {ModState.CurrentWhiteListInfo.DestructionThreshold} buildings to receive bonus.");
 
                             var progressText = new Text($"Current: {ModState.BuildingsDestroyedCount}/{ModState.CurrentWhiteListInfo.DestructionThreshold}");
-                            Util._SetProgressText.Invoke(objectiveINFLICT, new object[] { progressText });
+                            objectiveINFLICT.SetProgressText(progressText);
                             objectiveINFLICT.ObjectiveText.SetText(text);
                             ModInit.modLog.LogMessage(
                                 $"Collateral Damage objectiveUIItem SUCCESS set active");
@@ -419,7 +419,7 @@ namespace CollateralDamage.Patches
                             
                             ModInit.modLog.LogMessage(
                                 $"Selected extract immediately, autocompleting.");
-                            Traverse.Create(__instance).Method("AutoComplete").GetValue();
+                            __instance.AutoComplete();//Traverse.Create(__instance).Method("AutoComplete").GetValue();
                         });
                         popup.Render();
                         ModState.HasSeenEvacPopup = true;
