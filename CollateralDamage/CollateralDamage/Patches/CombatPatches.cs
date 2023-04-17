@@ -380,7 +380,7 @@ namespace CollateralDamage.Patches
         [HarmonyPatch(typeof(AutoCompleteGameLogic), "CheckAutoComplete", new Type[] {})]
         public static class AutoCompleteGameLogic_CheckAutoComplete
         {
-            public static void Prefix(bool __runOriginal, AutoCompleteGameLogic __instance)
+            public static void Prefix(ref bool __runOriginal, AutoCompleteGameLogic __instance)
             {
                 if (__instance == null)
                 {
