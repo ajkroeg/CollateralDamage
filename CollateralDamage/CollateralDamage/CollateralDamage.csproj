@@ -5,7 +5,6 @@
   <PropertyGroup Condition="'$(CollateralDamageModPath)' == '' And Exists('$(BattleTechGameDir)\Mods\Core\CollateralDamage')">
     <!-- RogueTech -->
     <CollateralDamageModPath>$(BattleTechGameDir)\Mods\Core\CollateralDamageCollateralDamage</CollateralDamageModPath>
-    <Configurations>Debug;Release;NoCAE</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CollateralDamageModPath)' == '' And Exists('$(BattleTechGameDir)\Mods\CollateralDamage')">
     <!-- flat dir -->
