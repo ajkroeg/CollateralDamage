@@ -2,7 +2,6 @@
 using BattleTech;
 using BattleTech.Framework;
 using BattleTech.UI;
-using Harmony;
 using HBS.Util;
 using UnityEngine;
 

@@ -4,7 +4,6 @@ using System.Linq;
 using BattleTech;
 using BattleTech.Framework;
 using BattleTech.UI;
-using Harmony;
 using UnityEngine;
 
 namespace CollateralDamage.Patches

@@ -6,7 +6,6 @@ using BattleTech.AutoCompleteClasses;
 using BattleTech.Framework;
 using BattleTech.UI;
 using CollateralDamage.Framework;
-using Harmony;
 using HBS;
 using Localize;
 using UnityEngine;
@@ -381,22 +380,28 @@ namespace CollateralDamage.Patches
         [HarmonyPatch(typeof(AutoCompleteGameLogic), "CheckAutoComplete", new Type[] {})]
         public static class AutoCompleteGameLogic_CheckAutoComplete
         {
-            public static bool Prefix(AutoCompleteGameLogic __instance)
+            public static void Prefix(bool __runOriginal, AutoCompleteGameLogic __instance)
             {
                 if (__instance == null)
                 {
                     ModInit.modLog.LogMessage(
                         $"instance was null? wtf.");
-                    return true;
+                    __runOriginal = true;
+                    return;
                 }
 
                 if (ModInit.modSettings.DisableAutoUrbanOnly &&
-                    __instance.Combat.MapMetaData.biomeSkin != Biome.BIOMESKIN.urbanHighTech) return true;
+                    __instance.Combat.MapMetaData.biomeSkin != Biome.BIOMESKIN.urbanHighTech)
+                {
+                    __runOriginal = true;
+                    return;
+                }
 
                 if (__instance.Combat.RegionsList.All(
                     x => x.regionDefId != "regionDef_EvacZone") || ModState.HasSeenEvacPopup || (!ModInit.modSettings.AllowDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID) && !ModInit.modSettings.ForceDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID)))
                 {
-                    return true;
+                    __runOriginal = true;
+                    return;
                 }
                 __instance.checkAutoCompleteFlag = false;
                 if (TriggeringObjectiveStatus.CheckTriggeringObjectiveList(__instance, __instance.DisplayName, __instance.triggeringObjectiveList, __instance.Combat))
@@ -426,10 +431,12 @@ namespace CollateralDamage.Patches
                     }
                     else if (ModInit.modSettings.ForceDisableAutocompleteWhitelist.Contains(__instance.Combat.ActiveContract.Override.ID))
                     {
-                        return false;
+                        __runOriginal = false;
+                        return;
                     }
                 }
-                return false;
+                __runOriginal = false;
+                return;
             }
         }
     }

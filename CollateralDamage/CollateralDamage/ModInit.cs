@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Harmony;
 using System.Reflection;
 using CollateralDamage.Framework;
 using Newtonsoft.Json;
+using HarmonyLib;
 
 namespace CollateralDamage
 {
@@ -32,9 +32,8 @@ namespace CollateralDamage
 
             ModInit.modLog.LogMessage($"Initializing {HarmonyPackage} - Version {typeof(Settings).Assembly.GetName().Version}");
             Util.LogSettings();
-            var harmony = HarmonyInstance.Create(HarmonyPackage);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), HarmonyPackage);
         }
     }
     class Settings
