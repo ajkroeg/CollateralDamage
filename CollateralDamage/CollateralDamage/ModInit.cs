@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using CollateralDamage.Framework;
 using Newtonsoft.Json;
-using HarmonyLib;
 
 namespace CollateralDamage
 {

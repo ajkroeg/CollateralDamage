@@ -1,7 +1,5 @@
-﻿using System.Reflection;
-using BattleTech;
+﻿using BattleTech;
 using BattleTech.Framework;
-using BattleTech.UI;
 using HBS.Util;
 using UnityEngine;
 
